@@ -16,7 +16,6 @@ public class SendEmail implements ActionPerformer {
 
 	private User user;
 	private List<Ingredient> userIngredients;
-	private List<Ingredient> injectedIngredients;
 	
 	@Override
 	public void setUser(User user) {
@@ -29,16 +28,10 @@ public class SendEmail implements ActionPerformer {
 	}
 
 	@Override
-	public void setInjectedIngredients(List<Ingredient> injectableIngredients) {
-		this.userIngredients = injectableIngredients;		
-	}
-
-	@Override
 	public void perform() {
 		log.debug("ACTION: i'm sendEmail");
 		log.debug("user: " + user.toString());
 		log.debug(userIngredients.toString());
-		log.debug(injectedIngredients.toString());
 	}
 
 	

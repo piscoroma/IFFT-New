@@ -3,7 +3,9 @@ package it.ifttt.services;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -28,18 +30,21 @@ public class RecipeServiceImpl implements RecipeService {
 	@Autowired
 	private RecipeInstanceRepository recipeInstanceRepo;
 
-	private List<RecipeInstance> recipeActiveInstanceList;
+	private Map<ObjectId, RecipeInstance> recipeActiveInstanceMap;
 		
 	@PostConstruct
 	private void init() throws RuntimeException{
 		log.debug("Initializing recipeService...");
-		recipeActiveInstanceList = new ArrayList<RecipeInstance>();
+		recipeActiveInstanceMap = new HashMap<ObjectId, RecipeInstance>();
+		/*List<RecipeInstance> recipeActiveInstanceList = new ArrayList<RecipeInstance>();
 		try{
 			recipeActiveInstanceList = recipeInstanceRepo.findByIsActive(true);
+			for(RecipeInstance recipeInstance : recipeActiveInstanceList)
+				recipeActiveInstanceMap.put(recipeInstance.getId(), recipeInstance);
 		}catch(Exception e){
 			log.debug("Initializing recipeService...Exception: " + e.getMessage());
 			throw new RuntimeException(e);
-		}
+		}*/
 		log.debug("Initializing recipeService...done!");
 	}
 	
@@ -82,7 +87,7 @@ public class RecipeServiceImpl implements RecipeService {
 	
 	@Override
 	public List<RecipeInstance> getAllActiveRecipesInstance() {
-		return recipeActiveInstanceList;
+		return new ArrayList<RecipeInstance>(recipeActiveInstanceMap.values());
 	}
 	
 	@Override
@@ -97,7 +102,7 @@ public class RecipeServiceImpl implements RecipeService {
 		}catch(Exception e){
 			throw new DatabaseException(e);
 		}
-		recipeActiveInstanceList.add(recipeInstance);		
+		recipeActiveInstanceMap.put(id, recipeInstance);		
 	}
 
 	@Override
@@ -112,7 +117,7 @@ public class RecipeServiceImpl implements RecipeService {
 		}catch(Exception e){
 			throw new DatabaseException(e);
 		}
-		recipeActiveInstanceList.remove(recipeInstance);		
+		recipeActiveInstanceMap.remove(id);
 	}
 	
 	@Override
@@ -127,8 +132,7 @@ public class RecipeServiceImpl implements RecipeService {
 		}catch(Exception e){
 			throw new DatabaseException(e);
 		}
-		int index = recipeActiveInstanceList.indexOf(recipeInstance);
-		recipeActiveInstanceList.set(index, recipeInstance);
+		recipeActiveInstanceMap.put(id, recipeInstance);
 	}
 
 	@Override
@@ -138,7 +142,7 @@ public class RecipeServiceImpl implements RecipeService {
 		}catch(Exception e){
 			throw new DatabaseException(e);
 		}
-		recipeActiveInstanceList.clear();
+		recipeActiveInstanceMap.clear();
 	}
 
 	@Override
@@ -152,8 +156,8 @@ public class RecipeServiceImpl implements RecipeService {
 		}catch(Exception e){
 			throw new DatabaseException(e);
 		}
-		if(recipeActiveInstanceList.contains(recipeInstance))
-			recipeActiveInstanceList.remove(recipeInstance);	
+		if(recipeActiveInstanceMap.containsKey(id))
+			recipeActiveInstanceMap.remove(id);
 	}
 
 }

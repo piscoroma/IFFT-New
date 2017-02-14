@@ -44,8 +44,13 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 	@Autowired
     RecipeService recipeService;
 	
+	private static boolean dbLoad = false;
+	
 	@Override
 	public void onApplicationEvent(ContextRefreshedEvent event) {
+		
+		if(dbLoad)
+			return;
 		
 		log.debug("---I'm DatabaseFillerOnStartup---");
 		//testQuery();
@@ -58,10 +63,11 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		}catch(DatabaseException | IllegalArgumentException e){
 			log.debug("Exception: " + e.getMessage());
 		}
+		dbLoad = true;
 		
 	}
 	
-	/*private void testQuery(){
+	private void testQuery(){
 		
 		MongoOperations mongoOps = mongoTemplate;
 
@@ -90,7 +96,7 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 	     log.debug("Number of users = : " + users.size());
 
 	     mongoOps.dropCollection(User.class);
-	}*/
+	}
 	private void clearDB() throws DatabaseException{
 		
 		log.debug("Deleting all RecipesInstance...");
@@ -215,9 +221,9 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		
 		RecipeStruct recipeStruct = new RecipeStruct();
 		recipeStruct.setAuthor(user);
-		recipeStruct.setDescription("if receive a email from a particular sender, send me a mail");
+		recipeStruct.setDescription("if a new event is created, send me a mail");
 		recipeStruct.setPublic(false);
-		recipeStruct.setTrigger(channelService.getTriggerByName("EMAIL_RECEIVED"));
+		recipeStruct.setTrigger(channelService.getTriggerByName("CALENDAR_EVENT_CREATED"));
 		recipeStruct.setAction(channelService.getActionlByName("SEND_EMAIL"));
 		
 		recipeService.saveRecipeStruct(recipeStruct);
@@ -237,11 +243,12 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		recipeInstance.setRecipeStruct(recipeStructList.get(0));
 		
 		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
-		triggerIngredients.add(new Ingredient("RECEIVER", "fulvio.risso@polito.it"));
+		triggerIngredients.add(new Ingredient("LOCATION", "politecnico"));
 		
 		List<Ingredient> actionIngredients = new ArrayList<Ingredient>();
 		actionIngredients.add(new Ingredient("SENDER", "giovanni.malnati@polito.it"));
-		actionIngredients.add(new Ingredient("SUBJECT", "alert"));
+		actionIngredients.add(new Ingredient("SUBJECT", "new event added description: @DESCRIPTION , location: @LOCATION"));
+		actionIngredients.add(new Ingredient("BODY", "event created by @CREATOR . See you soon."));
 		
 		recipeInstance.setTriggerIngredients(triggerIngredients);
 		recipeInstance.setActionIngredients(actionIngredients);

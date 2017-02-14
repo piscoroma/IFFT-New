@@ -9,6 +9,6 @@ public interface ActionPerformer {
 	
 	void setUser(User user);
 	void setUserIngredients(List<Ingredient> userIngredients);
-	void setInjectedIngredients(List<Ingredient> injectableIngredients);
+	//void setInjectedIngredients(List<Ingredient> injectableIngredients);
 	void perform();
 }

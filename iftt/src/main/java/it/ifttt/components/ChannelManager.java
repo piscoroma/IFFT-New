@@ -27,10 +27,10 @@ public class ChannelManager {
 		
 		switch(channelName){
 			case "GMAIL":
-				genericManager = gcalendarManager;
+				genericManager = gmailManager;
 				break;
 			case "GCALENDAR":
-				genericManager = gmailManager;
+				genericManager = gcalendarManager;
 				break;
 			/*case "WHEATHER":
 				genericManager = wheatherManager;

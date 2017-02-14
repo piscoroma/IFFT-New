@@ -27,9 +27,9 @@ public class ActionHandler {
 		this.actionPerformer = setAction(action);
 	}
 	
-	public void setInjectableIngredients(List<Ingredient> injectableIngredients){
+	/*public void setInjectableIngredients(List<Ingredient> injectableIngredients){
 		actionPerformer.setInjectedIngredients(injectableIngredients);
-	}
+	}*/
 	
 	public void perform(User user, List<Ingredient> ingredients) throws Exception{
 		try{

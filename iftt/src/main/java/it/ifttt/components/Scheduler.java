@@ -25,6 +25,8 @@ public class Scheduler {
 	private RecipeService recipeService;
 	@Autowired
 	private TriggerHandler triggerHandler;
+	@Autowired 
+	IngredientResolver ingredientResolver;
 	@Autowired
 	private ActionHandler actionHandler;
 	
@@ -63,7 +65,8 @@ public class Scheduler {
 					actionHandler.initialize(action);
 					for(Object params : triggerParams){
 						injectedIngredients = triggerHandler.injectIngredients(injectableIngredients, params);
-						actionHandler.setInjectableIngredients(injectedIngredients);
+						ingredientResolver.resolve(userActionIngredients, injectedIngredients);
+						//actionHandler.setInjectableIngredients(injectedIngredients);
 						actionHandler.perform(user, userActionIngredients);
 					}
 				}else

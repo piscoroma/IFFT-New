@@ -41,14 +41,14 @@ public class ChannelServiceImpl implements ChannelService {
 		triggers = Collections.synchronizedList(new ArrayList<Trigger>());
 		actions = Collections.synchronizedList(new ArrayList<Action>());
 		
-		try{
+		/*try{
 			channels = channelRepo.findAll();
 			triggers = triggerRepo.findAll();
 			actions = actionRepo.findAll();
 		}catch(Exception e){
 			log.debug("Initializing channelService...Exception: " + e.getMessage());
 			throw new RuntimeException(e);
-		}
+		}*/
 		log.debug("Initializing channelService...done!");
 	}
 	
