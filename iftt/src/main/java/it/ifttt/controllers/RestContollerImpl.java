@@ -22,5 +22,16 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
         log.error("This is an error message");
 		return "Hello World";
 	}
-
+	
+	
+	@RequestMapping(value="/helloWorldAuth", method=RequestMethod.GET)
+	@ResponseStatus(value=HttpStatus.OK)
+	public String HelloWorldAuth() {
+		log.debug("Auth: This is a debug message");
+        log.info("Auth: This is an info message");
+        log.warn("Auth: This is a warn message");
+        log.error("Auth: This is an error message");
+		return "Auth: Hello World";
+	}
+	
 }

@@ -26,11 +26,36 @@
  		<version>7.0</version>
  	</dependency>
  	<!-- Google -->
- 	<dependency>
+    <dependency>
+	    <groupId>org.apache.httpcomponents</groupId>
+	    <artifactId>httpclient</artifactId>
+	    <version>4.5.2</version>
+	</dependency>
+    <dependency>
+	    <groupId>com.google.api-client</groupId>
+	    <artifactId>google-api-client</artifactId>
+	    <version>1.22.0</version>
+	</dependency>	
+    <dependency>
+	    <groupId>com.google.oauth-client</groupId>
+	    <artifactId>google-oauth-client-jetty</artifactId>
+	    <version>1.22.0</version>
+	</dependency>
+	<dependency>
+	    <groupId>com.google.apis</groupId>
+	    <artifactId>google-api-services-calendar</artifactId>
+	    <version>v3-rev208-1.22.0</version>
+	</dependency>
+	 	<dependency>
  		<groupId>com.google.apis</groupId>
  		<artifactId>google-api-services-gmail</artifactId>
  		<version>v1-rev55-1.22.0</version>
  	</dependency>
+	<dependency>
+	    <groupId>javax.mail</groupId>
+	    <artifactId>mail</artifactId>
+	    <version>1.4.7</version>
+	</dependency>
  	<!-- Spring -->
  	<dependency>
  		<groupId>org.springframework.boot</groupId>
@@ -84,38 +109,55 @@
  		<artifactId>spring-security-config</artifactId>
  		<version>4.2.1.RELEASE</version>
  	</dependency>
+ 	<!-- Spring Social -->
+ 	<dependency>
+ 		<groupId>org.springframework.social</groupId>
+ 		<artifactId>spring-social-config</artifactId>
+ 		<version>1.1.4.RELEASE</version>
+ 	</dependency>
+ 	<dependency>
+ 		<groupId>org.springframework.social</groupId>
+ 		<artifactId>spring-social-core</artifactId>
+ 		<version>1.1.4.RELEASE</version>
+ 	</dependency>
+ 	<dependency>
+ 		<groupId>org.springframework.social</groupId>
+ 		<artifactId>spring-social-security</artifactId>
+ 		<version>1.1.4.RELEASE</version>
+ 	</dependency>
+ 	<dependency>
+ 		<groupId>org.springframework.social</groupId>
+ 		<artifactId>spring-social-web</artifactId>
+ 		<version>1.1.4.RELEASE</version>
+ 	</dependency>
+ 	<dependency>
+ 		<groupId>org.springframework.social</groupId>
+ 		<artifactId>spring-social-google</artifactId>
+ 		<version>1.0.0.RELEASE</version>
+ 	</dependency>
+ 	<!-- JACKSON SERIALIZER -->
+    <dependency>
+	    <groupId>com.fasterxml.jackson.core</groupId>
+	    <artifactId>jackson-core</artifactId>
+	    <version>2.8.0</version>
+	</dependency>
+	<dependency>
+	    <groupId>com.fasterxml.jackson.core</groupId>
+	    <artifactId>jackson-databind</artifactId>
+	    <version>2.8.0</version>
+	</dependency>
+	<dependency>
+ 		<groupId>com.fasterxml.jackson.core</groupId>
+ 		<artifactId>jackson-annotations</artifactId>
+ 		<version>2.8.6</version>
+ 	</dependency>
  	<!-- Log4j -->
 	<dependency>
  		<groupId>log4j</groupId>
  		<artifactId>log4j</artifactId>
  		<version>1.2.17</version>
- 	</dependency> 
- 	<!-- <dependency>
- 		<groupId>org.apache.logging.log4j</groupId>
- 		<artifactId>log4j-api</artifactId>
- 		<version>2.7</version>
- 	</dependency>
- 	<dependency>
- 		<groupId>org.apache.logging.log4j</groupId>
- 		<artifactId>log4j-core</artifactId>
- 		<version>2.7</version>
- 	</dependency>
- 	<dependency>
- 		<groupId>org.slf4j</groupId>
- 		<artifactId>slf4j-api</artifactId>
- 		<version>1.7.22</version>
- 	</dependency>
- 	<dependency>
- 		<groupId>org.apache.logging.log4j</groupId>
- 		<artifactId>log4j-slf4j-impl</artifactId>
- 		<version>2.7</version>
- 	</dependency>-->
+ 	</dependency> 	
  	<!-- END -->
- 	<!-- <dependency>
- 		<groupId>org.springframework.boot</groupId>
- 		<artifactId>spring-boot-starter-web</artifactId>
- 		<version>1.4.3.RELEASE</version>
- 	</dependency> -->
   </dependencies>
   <build>
     <finalName>iftt</finalName>

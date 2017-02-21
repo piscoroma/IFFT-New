@@ -77,7 +77,7 @@ public class MongoApp implements CommandLineRunner{
 		
 		MongoOperations mongoOps = mongoTemplate;
 
-		User user = new User("giuseppe", "piscopo");
+		User user = new User("giuseppe", "piscopo", "user");
  		
 		mongoOps.dropCollection(User.class);
 		
@@ -145,9 +145,9 @@ public class MongoApp implements CommandLineRunner{
 	private void addUsers() throws DatabaseException{
 				
 		List<User> users = new ArrayList<User>();
-		users.add(new User("giuseppe", "piscopo"));
-		users.add(new User("davide", "pezzolla"));
-		users.add(new User("fabio", "salvini"));
+		users.add(new User("giuseppe", "piscopo", "user"));
+		users.add(new User("davide", "pezzolla", "user"));
+		users.add(new User("fabio", "salvini", "user"));
 		
 		for(User user : users){
 			try{

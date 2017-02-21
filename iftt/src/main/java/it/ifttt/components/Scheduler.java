@@ -31,7 +31,7 @@ public class Scheduler {
 	private ActionHandler actionHandler;
 	
 		
-	@Scheduled(fixedRate=5000)
+	//@Scheduled(fixedRate=5000)
 	public void triggerCheckEvent(){
 		
 		log.debug("task activated!");
