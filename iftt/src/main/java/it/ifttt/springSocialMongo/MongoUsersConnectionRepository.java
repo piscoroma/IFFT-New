@@ -35,7 +35,6 @@ public class MongoUsersConnectionRepository implements UsersConnectionRepository
 		this.mongoService = mongoService;
 		this.connectionFactoryLocator = connectionFactoryLocator;
 		this.textEncryptor = textEncryptor;
-		log.info("****MongoUsersConnectionRepository created");
 	}
 
 	public void setConnectionSignUp(ConnectionSignUp connectionSignUp) {
@@ -64,6 +63,7 @@ public class MongoUsersConnectionRepository implements UsersConnectionRepository
 
 	@Override
 	public ConnectionRepository createConnectionRepository(String userId) {
+		log.info("userID: " + userId);
 		if (userId == null) {
 			throw new IllegalArgumentException("userId cannot be null");
 		}

@@ -8,12 +8,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.servlet.view.RedirectView;
 
+import it.ifttt.springSocialMongo.GoogleInterceptor;
+import it.ifttt.springSocialMongo.TwitterInterceptor;
+
 @Controller
 public class CustomConnectController extends ConnectController{
 
 	@Autowired
 	public CustomConnectController(ConnectionFactoryLocator connectionFactoryLocator, ConnectionRepository connectionRepository) {
 		super(connectionFactoryLocator, connectionRepository);
+		this.addInterceptor(new GoogleInterceptor());
+		this.addInterceptor(new TwitterInterceptor());
 	}
 	
 	@Override
@@ -22,5 +27,6 @@ public class CustomConnectController extends ConnectController{
 		String path = "/#/loginWithSocialSuccessfull";
 		return new RedirectView(path, true);
 	}
+	
 
 }

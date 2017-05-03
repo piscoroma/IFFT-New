@@ -37,6 +37,10 @@ public class TriggerHandler {
 		}
 	}
 	
+	public Date getLastRefresh(){
+		return event.getLastRefresh();
+	}
+	
 	public List<Ingredient> injectIngredients(List<Ingredient> injeactableIngredient, Object obj){
 		return event.injectIngredients(injeactableIngredient, obj);
 	}

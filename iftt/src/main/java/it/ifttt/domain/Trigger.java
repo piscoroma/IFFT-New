@@ -17,6 +17,7 @@ public class Trigger {
 	private String name;
 	private String description;
 	private List<Ingredient> ingredients;
+	private List<Ingredient> injectableIngredients;
 	
 	public Trigger(){
 	}
@@ -27,10 +28,11 @@ public class Trigger {
 		//this.ingredients = new ArrayList<Ingredient>();
 	}
 	
-	public Trigger(Channel channel, String name, List<Ingredient> ingredients){
+	public Trigger(Channel channel, String name, List<Ingredient> ingredients, List<Ingredient> injectableIngredients){
 		this.channel = channel;
 		this.name = name;
 		this.ingredients = ingredients;
+		this.injectableIngredients = injectableIngredients;
 	}
 	
 	public ObjectId getId() {
@@ -64,6 +66,12 @@ public class Trigger {
 	}
 	public void setIngredients(List<Ingredient> ingredients) {
 		this.ingredients = ingredients;
+	}
+	public List<Ingredient> getInjectableIngredients() {
+		return injectableIngredients;
+	}
+	public void setInjectableIngredients(List<Ingredient> injectableIngredients) {
+		this.injectableIngredients = injectableIngredients;
 	}
 	
 }

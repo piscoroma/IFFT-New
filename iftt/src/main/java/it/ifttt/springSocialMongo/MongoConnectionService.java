@@ -35,15 +35,10 @@ public class MongoConnectionService implements ConnectionService {
 
 	private static Logger log = LogManager.getLogger();
 	
-	private final MongoTemplate mongoTemplate;
-	private final ConnectionConverter converter;
-	
 	@Autowired
-	public MongoConnectionService(MongoTemplate mongoTemplate, ConnectionConverter converter) {
-		this.mongoTemplate = mongoTemplate;
-		this.converter = converter;
-		log.info("****MongoConnectionService created");
-	}
+	private MongoTemplate mongoTemplate;
+	@Autowired
+	private ConnectionConverter converter;
 		
 	/**
 	 * Returns the max connection rank for the user and the provider.

@@ -168,6 +168,7 @@ public class MongoApp implements CommandLineRunner{
 		try{
 			addCollectionChannelGMAIL();
 			addCollectionChannelGCALENDAR();
+			addCollectionChannelTWITTER();
 		}catch(DatabaseException de){
 			log.info("Adding CollectionChannelGMAIL...Error! DatabaseException: " + de.getMessage());
 			throw de;
@@ -179,19 +180,26 @@ public class MongoApp implements CommandLineRunner{
 		
 		Channel channel = new Channel("GMAIL");
 	    
-		List<Ingredient> ingredients = new ArrayList<Ingredient>();
-	    ingredients.add(new Ingredient("FROM"));
-	    ingredients.add(new Ingredient("TO"));
-	    ingredients.add(new Ingredient("CC"));
-	    ingredients.add(new Ingredient("SUBJECT"));
-	    ingredients.add(new Ingredient("BODY"));
-	    ingredients.add(new Ingredient("DATE"));
+		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
+		triggerIngredients.add(new Ingredient("FROM"));
+	    triggerIngredients.add(new Ingredient("SUBJECT"));
+	    triggerIngredients.add(new Ingredient("BODY"));
+	    triggerIngredients.add(new Ingredient("DATE"));
+	    
+	    List<Ingredient> injectableIngredients = new ArrayList<Ingredient>(triggerIngredients);   
+	    injectableIngredients.add(new Ingredient("CC"));
 	    
 	    List<Trigger> triggers = new ArrayList<Trigger>();
-	    triggers.add(new Trigger(channel, "EMAIL_RECEIVED", ingredients));
+	    triggers.add(new Trigger(channel, "EMAIL_RECEIVED", triggerIngredients, injectableIngredients));
+	    
+	    List<Ingredient> actionIngredients = new ArrayList<Ingredient>();
+	    actionIngredients.add(new Ingredient("TO"));
+	    actionIngredients.add(new Ingredient("CC"));
+	    actionIngredients.add(new Ingredient("SUBJECT"));
+	    actionIngredients.add(new Ingredient("BODY"));
 	    
 	    List<Action> actions = new ArrayList<Action>();
-	    actions.add(new Action(channel, "SEND_EMAIL", ingredients));
+	    actions.add(new Action(channel, "SEND_EMAIL", actionIngredients));
 	    
 		channelService.addCollectionChannel(channel, triggers, actions);
 	    		
@@ -200,25 +208,58 @@ public class MongoApp implements CommandLineRunner{
 		
 		Channel channel = new Channel("GCALENDAR");
 	    
-		List<Ingredient> ingredients = new ArrayList<Ingredient>();
-		ingredients.add(new Ingredient("SUMMARY"));
-		ingredients.add(new Ingredient("DESCRIPTION"));
-	    ingredients.add(new Ingredient("LOCATION"));
-	    ingredients.add(new Ingredient("CREATOR"));
-	    ingredients.add(new Ingredient("CREATED_DATE"));
-	    ingredients.add(new Ingredient("ATTENDEES"));
-	    ingredients.add(new Ingredient("START_DATE"));
-	    ingredients.add(new Ingredient("END_DATE"));
+		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
+		triggerIngredients.add(new Ingredient("SUMMARY"));
+		triggerIngredients.add(new Ingredient("DESCRIPTION"));
+		triggerIngredients.add(new Ingredient("LOCATION"));
+		triggerIngredients.add(new Ingredient("CREATOR"));
+	    
+	    List<Ingredient> injectableIngredients = new ArrayList<Ingredient>(triggerIngredients);   
+	    injectableIngredients.add(new Ingredient("CREATED_DATE"));
+	    injectableIngredients.add(new Ingredient("ATTENDEES"));
+	    injectableIngredients.add(new Ingredient("START_DATE"));
+	    injectableIngredients.add(new Ingredient("END_DATE"));
 	    
 	    List<Trigger> triggers = new ArrayList<Trigger>();
-	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_CREATED", ingredients));
-	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_STARTED", ingredients));
+	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_CREATED", triggerIngredients, injectableIngredients));
+	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_STARTED", triggerIngredients, injectableIngredients));
+	    
+	    List<Ingredient> actionIngredients = new ArrayList<Ingredient>(injectableIngredients);
+	    actionIngredients.add(new Ingredient("ALL_DAY"));
+	    actionIngredients.add(new Ingredient("TIMEZONE"));
 	    
 	    List<Action> actions = new ArrayList<Action>();
-	    actions.add(new Action(channel, "CALENDAR_CREATE_EVENT", ingredients));
+	    actions.add(new Action(channel, "CALENDAR_CREATE_EVENT", actionIngredients));
 	    
 		channelService.addCollectionChannel(channel, triggers, actions);
 	    		
+	}
+	private void addCollectionChannelTWITTER() throws DatabaseException{
+		
+		Channel channel = new Channel("TWITTER");
+		
+		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
+		triggerIngredients.add(new Ingredient("FROM"));
+		triggerIngredients.add(new Ingredient("TEXT"));
+		
+		List<Ingredient> injectableIngredients = new ArrayList<Ingredient>(triggerIngredients);
+		injectableIngredients.add(new Ingredient("TWEET_ID"));
+		injectableIngredients.add(new Ingredient("NLIKES"));
+		injectableIngredients.add(new Ingredient("DATE"));
+		injectableIngredients.add(new Ingredient("REPLY_TO_STATUS_ID"));
+		
+		List<Trigger> triggers = new ArrayList<Trigger>();
+		triggers.add(new Trigger(channel, "NEW_TWEET_EVENT", triggerIngredients, injectableIngredients));
+		
+		List<Ingredient> actionIngredients = new ArrayList<Ingredient>();
+		actionIngredients.add(new Ingredient("TEXT"));
+		actionIngredients.add(new Ingredient("REPLY_TO_STATUS_ID"));
+		
+		List<Action> actions = new ArrayList<Action>();
+		actions.add(new Action(channel, "TWEET_STATE_ACTION", actionIngredients));
+		
+		channelService.addCollectionChannel(channel, triggers, actions);
+		
 	}
 	private void addRecipesStruct() throws DatabaseException, IllegalArgumentException{
 		

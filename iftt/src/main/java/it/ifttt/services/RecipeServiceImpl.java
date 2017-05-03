@@ -134,6 +134,22 @@ public class RecipeServiceImpl implements RecipeService {
 		}
 		recipeActiveInstanceMap.put(id, recipeInstance);
 	}
+	
+	@Override
+	public void updateRefreshTime(ObjectId id, Date lastRefresh) throws DatabaseException, IllegalArgumentException {
+		RecipeInstance recipeInstance = null;
+		try{
+			recipeInstance = recipeInstanceRepo.findById(id);
+			if(recipeInstance == null)
+				throw new IllegalArgumentException("RecipeInstance not found");
+			recipeInstance.setLastRefresh(lastRefresh);
+			recipeInstanceRepo.save(recipeInstance);
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}
+		recipeActiveInstanceMap.put(id, recipeInstance);
+		
+	}
 
 	@Override
 	public void deleteAllRecipesInstance() throws DatabaseException {
@@ -159,5 +175,6 @@ public class RecipeServiceImpl implements RecipeService {
 		if(recipeActiveInstanceMap.containsKey(id))
 			recipeActiveInstanceMap.remove(id);
 	}
+
 
 }

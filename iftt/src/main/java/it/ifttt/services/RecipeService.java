@@ -1,5 +1,6 @@
 package it.ifttt.services;
 
+import java.util.Date;
 import java.util.List;
 
 import org.bson.types.ObjectId;
@@ -20,6 +21,7 @@ public interface RecipeService {
 	void activeRecipeInstance(ObjectId id) throws DatabaseException, IllegalArgumentException;
 	void disableRecipeInstance(ObjectId id) throws DatabaseException, IllegalArgumentException;
 	void updateRefreshTime(ObjectId id) throws DatabaseException, IllegalArgumentException;
+	void updateRefreshTime(ObjectId id, Date lastRefresh) throws DatabaseException, IllegalArgumentException;
 	void deleteAllRecipesInstance() throws DatabaseException;
 	void deleteRecipeInstance(ObjectId id) throws DatabaseException, IllegalArgumentException;
 	

@@ -22,15 +22,10 @@ public class ConnectionConverter {
 	
 	private static Logger log = LogManager.getLogger();
 	
-	private final ConnectionFactoryLocator connectionFactoryLocator;
-	private final TextEncryptor textEncryptor;
-
 	@Autowired
-	public ConnectionConverter(ConnectionFactoryLocator connectionFactoryLocator, TextEncryptor textEncryptor) {	
-		this.connectionFactoryLocator = connectionFactoryLocator;
-		this.textEncryptor = textEncryptor;
-		log.info("****ConnectionConverter created");
-	}
+	ConnectionFactoryLocator connectionFactoryLocator;
+	@Autowired
+	TextEncryptor textEncryptor;
 	
 	public Connection<?> convert(MongoConnection cnn) {
 		if (cnn==null) return null;

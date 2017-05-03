@@ -40,7 +40,6 @@ public class MongoConnectionRepository implements ConnectionRepository {
 		this.connectionFactoryLocator = connectionFactoryLocator;
 		//this.textEncryptor = textEncryptor;
 		//this.connectionMapper = new ConnectionMapper(connectionFactoryLocator, textEncryptor);
-		log.info("****MongoConnectionRepository created");
 	}
 
 //	private String encrypt(String text) {

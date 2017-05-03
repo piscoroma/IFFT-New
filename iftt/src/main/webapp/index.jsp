@@ -12,13 +12,13 @@
     <p><button type="submit">Logout app</button></p>
 </form>
 
-
+<!-- GOOGLE -->
 
 <form action="connect/google" method="POST">
     <p>You haven't created any connections with Twitter yet. Click the button to create
        a connection between your account and your Twitter profile.
        (You'll be redirected to Twitter where you'll be asked to authorize the connection.)</p>
-    <input type="hidden" name="scope" value="https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo#email https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/tasks https://www-opensocial.googleusercontent.com/api/people https://www.googleapis.com/auth/plus.login" />
+    <input type="hidden" name="scope" value="https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.compose" />
     <p><button type="submit">Connect Google</button></p>
 </form>
 
@@ -30,8 +30,29 @@
       Click the button if you wish to disconnect.
     </p>
   </div>
-  <input type="hidden" name="scope" value="https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo#email https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/tasks https://www-opensocial.googleusercontent.com/api/people https://www.googleapis.com/auth/plus.login" />
+   <input type="hidden" name="scope" value="https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.compose" />
   <button type="submit">Disconnect Google</button>
+  <input type="hidden" name="_method" value="delete" />
+</form>
+
+<!-- TWITTER -->
+
+<form action="connect/twitter" method="POST">
+    <p>You haven't created any connections with Twitter yet. Click the button to create
+       a connection between your account and your Twitter profile.
+       (You'll be redirected to Twitter where you'll be asked to authorize the connection.)</p>
+    <p><button type="submit">Connect Twitter</button></p>
+</form>
+
+
+<form action="connect/twitter" method="post">
+  <div class="formInfo">
+    <p>
+      Spring Social Showcase is connected to your Twitter account.
+      Click the button if you wish to disconnect.
+    </p>
+  </div>
+  <button type="submit">Disconnect Twitter</button>
   <input type="hidden" name="_method" value="delete" />
 </form>
 

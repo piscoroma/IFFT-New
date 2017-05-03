@@ -24,7 +24,7 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	
-	@RequestMapping(value="/helloWorldAuth", method=RequestMethod.GET)
+	@RequestMapping(value="/authHelloWorld", method=RequestMethod.GET)
 	@ResponseStatus(value=HttpStatus.OK)
 	public String HelloWorldAuth() {
 		log.debug("Auth: This is a debug message");

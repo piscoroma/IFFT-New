@@ -6,6 +6,7 @@ import it.ifttt.domain.Action;
 import it.ifttt.domain.Channel;
 import it.ifttt.domain.Trigger;
 import it.ifttt.exceptions.DatabaseException;
+import it.ifttt.messages.ChannelStatusMessage;
 
 public interface ChannelService {
 	
@@ -23,13 +24,7 @@ public interface ChannelService {
 	Action getActionlByName(String actionName) throws DatabaseException;
 	List<Action> getActionsByChannel(Channel channel) throws DatabaseException;
 	
-	void addCollectionChannel(Channel channel, List<Trigger> triggers, List<Action> actions) throws DatabaseException;
 	void deleteAllCollectionChannel() throws DatabaseException;
-	
-	
-	
-	
-	
-	
+	void addCollectionChannel(Channel channel, List<Trigger> triggers, List<Action> actions) throws DatabaseException;
 
 }

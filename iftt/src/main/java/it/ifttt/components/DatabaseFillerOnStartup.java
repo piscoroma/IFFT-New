@@ -162,6 +162,7 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		try{
 			addCollectionChannelGMAIL();
 			addCollectionChannelGCALENDAR();
+			addCollectionChannelTWITTER();
 		}catch(DatabaseException de){
 			log.debug("Adding CollectionChannelGMAIL...Error! DatabaseException: " + de.getMessage());
 			throw de;
@@ -173,19 +174,26 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		
 		Channel channel = new Channel("GMAIL");
 	    
-		List<Ingredient> ingredients = new ArrayList<Ingredient>();
-	    ingredients.add(new Ingredient("FROM"));
-	    ingredients.add(new Ingredient("TO"));
-	    ingredients.add(new Ingredient("CC"));
-	    ingredients.add(new Ingredient("SUBJECT"));
-	    ingredients.add(new Ingredient("BODY"));
-	    ingredients.add(new Ingredient("DATE"));
+		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
+		triggerIngredients.add(new Ingredient("FROM"));
+	    triggerIngredients.add(new Ingredient("SUBJECT"));
+	    triggerIngredients.add(new Ingredient("BODY"));
+	    triggerIngredients.add(new Ingredient("DATE"));
+	    
+	    List<Ingredient> injectableIngredients = new ArrayList<Ingredient>(triggerIngredients);   
+	    injectableIngredients.add(new Ingredient("CC"));
 	    
 	    List<Trigger> triggers = new ArrayList<Trigger>();
-	    triggers.add(new Trigger(channel, "EMAIL_RECEIVED", ingredients));
+	    triggers.add(new Trigger(channel, "EMAIL_RECEIVED", triggerIngredients, injectableIngredients));
+	    
+	    List<Ingredient> actionIngredients = new ArrayList<Ingredient>();
+	    actionIngredients.add(new Ingredient("TO"));
+	    actionIngredients.add(new Ingredient("CC"));
+	    actionIngredients.add(new Ingredient("SUBJECT"));
+	    actionIngredients.add(new Ingredient("BODY"));
 	    
 	    List<Action> actions = new ArrayList<Action>();
-	    actions.add(new Action(channel, "SEND_EMAIL", ingredients));
+	    actions.add(new Action(channel, "SEND_EMAIL", actionIngredients));
 	    
 		channelService.addCollectionChannel(channel, triggers, actions);
 	    		
@@ -194,25 +202,58 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		
 		Channel channel = new Channel("GCALENDAR");
 	    
-		List<Ingredient> ingredients = new ArrayList<Ingredient>();
-		ingredients.add(new Ingredient("SUMMARY"));
-		ingredients.add(new Ingredient("DESCRIPTION"));
-	    ingredients.add(new Ingredient("LOCATION"));
-	    ingredients.add(new Ingredient("CREATOR"));
-	    ingredients.add(new Ingredient("CREATED_DATE"));
-	    ingredients.add(new Ingredient("ATTENDEES"));
-	    ingredients.add(new Ingredient("START_DATE"));
-	    ingredients.add(new Ingredient("END_DATE"));
+		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
+		triggerIngredients.add(new Ingredient("SUMMARY"));
+		triggerIngredients.add(new Ingredient("DESCRIPTION"));
+		triggerIngredients.add(new Ingredient("LOCATION"));
+		triggerIngredients.add(new Ingredient("CREATOR"));
+	    
+	    List<Ingredient> injectableIngredients = new ArrayList<Ingredient>(triggerIngredients);   
+	    injectableIngredients.add(new Ingredient("CREATED_DATE"));
+	    injectableIngredients.add(new Ingredient("ATTENDEES"));
+	    injectableIngredients.add(new Ingredient("START_DATE"));
+	    injectableIngredients.add(new Ingredient("END_DATE"));
 	    
 	    List<Trigger> triggers = new ArrayList<Trigger>();
-	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_CREATED", ingredients));
-	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_STARTED", ingredients));
+	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_CREATED", triggerIngredients, injectableIngredients));
+	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_STARTED", triggerIngredients, injectableIngredients));
+	    
+	    List<Ingredient> actionIngredients = new ArrayList<Ingredient>(injectableIngredients);
+	    actionIngredients.add(new Ingredient("ALL_DAY"));
+	    actionIngredients.add(new Ingredient("TIMEZONE"));
 	    
 	    List<Action> actions = new ArrayList<Action>();
-	    actions.add(new Action(channel, "CALENDAR_CREATE_EVENT", ingredients));
+	    actions.add(new Action(channel, "CALENDAR_CREATE_EVENT", actionIngredients));
 	    
 		channelService.addCollectionChannel(channel, triggers, actions);
 	    		
+	}
+	private void addCollectionChannelTWITTER() throws DatabaseException{
+		
+		Channel channel = new Channel("TWITTER");
+		
+		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
+		triggerIngredients.add(new Ingredient("FROM"));
+		triggerIngredients.add(new Ingredient("TEXT"));
+		
+		List<Ingredient> injectableIngredients = new ArrayList<Ingredient>(triggerIngredients);
+		injectableIngredients.add(new Ingredient("TWEET_ID"));
+		injectableIngredients.add(new Ingredient("NLIKES"));
+		injectableIngredients.add(new Ingredient("DATE"));
+		injectableIngredients.add(new Ingredient("REPLY_TO_STATUS_ID"));
+		
+		List<Trigger> triggers = new ArrayList<Trigger>();
+		triggers.add(new Trigger(channel, "NEW_TWEET_EVENT", triggerIngredients, injectableIngredients));
+		
+		List<Ingredient> actionIngredients = new ArrayList<Ingredient>();
+		actionIngredients.add(new Ingredient("TEXT"));
+		actionIngredients.add(new Ingredient("REPLY_TO_STATUS_ID"));
+		
+		List<Action> actions = new ArrayList<Action>();
+		actions.add(new Action(channel, "TWEET_STATE_ACTION", actionIngredients));
+		
+		channelService.addCollectionChannel(channel, triggers, actions);
+		
 	}
 	private void addRecipesStruct() throws DatabaseException, IllegalArgumentException{
 		
@@ -228,6 +269,34 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		
 		recipeService.saveRecipeStruct(recipeStruct);
 		log.debug("Adding recipeStruct...added with id " + recipeStruct.getId());
+		
+		/*-------------*/
+		
+		log.debug("Adding recipeStruct...");
+		
+		recipeStruct = new RecipeStruct();
+		recipeStruct.setAuthor(user);
+		recipeStruct.setDescription("if a new event is created, tweet");
+		recipeStruct.setPublic(false);
+		recipeStruct.setTrigger(channelService.getTriggerByName("CALENDAR_EVENT_CREATED"));
+		recipeStruct.setAction(channelService.getActionlByName("TWEET_STATE_ACTION"));
+		
+		recipeService.saveRecipeStruct(recipeStruct);
+		log.debug("Adding recipeStruct...added with id " + recipeStruct.getId());
+		
+		/*-------------*/
+		
+		log.debug("Adding recipeStruct...");
+		
+		recipeStruct = new RecipeStruct();
+		recipeStruct.setAuthor(user);
+		recipeStruct.setDescription("if receive a tweet, send a mail");
+		recipeStruct.setPublic(false);
+		recipeStruct.setTrigger(channelService.getTriggerByName("NEW_TWEET_EVENT"));
+		recipeStruct.setAction(channelService.getActionlByName("SEND_EMAIL"));
+		
+		recipeService.saveRecipeStruct(recipeStruct);
+		log.debug("Adding recipeStruct...added with id " + recipeStruct.getId());
 				
 	}
 	private void addRecipesInstance() throws DatabaseException, IllegalArgumentException{
@@ -239,16 +308,66 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		RecipeInstance recipeInstance = new RecipeInstance();
 		recipeInstance.setUser(user);
 		recipeInstance.setActive(true);
-		recipeInstance.setLastRefresh(new Date());
+		recipeInstance.setLastRefresh(null);
 		recipeInstance.setRecipeStruct(recipeStructList.get(0));
 		
 		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
 		triggerIngredients.add(new Ingredient("LOCATION", "politecnico"));
 		
 		List<Ingredient> actionIngredients = new ArrayList<Ingredient>();
-		actionIngredients.add(new Ingredient("SENDER", "giovanni.malnati@polito.it"));
+		actionIngredients.add(new Ingredient("SENDER", "giaaovanni.malnati@polito.it"));
 		actionIngredients.add(new Ingredient("SUBJECT", "new event added description: @DESCRIPTION , location: @LOCATION"));
 		actionIngredients.add(new Ingredient("BODY", "event created by @CREATOR . See you soon."));
+		
+		recipeInstance.setTriggerIngredients(triggerIngredients);
+		recipeInstance.setActionIngredients(actionIngredients);
+
+		recipeService.saveRecipeInstance(recipeInstance);
+		log.debug("Adding recipeInstance...added with id " + recipeInstance.getId());
+		recipeService.activeRecipeInstance(recipeInstance.getId());
+		log.debug("RecipeInstance " + recipeInstance.getId() + " activated!");
+		
+		/*-------------*/
+		
+		log.debug("Adding recipeInstance...");
+			
+		recipeInstance = new RecipeInstance();
+		recipeInstance.setUser(user);
+		recipeInstance.setActive(true);
+		recipeInstance.setLastRefresh(null);
+		recipeInstance.setRecipeStruct(recipeStructList.get(1));
+		
+		triggerIngredients = new ArrayList<Ingredient>();
+		triggerIngredients.add(new Ingredient("LOCATION", "politecnico"));
+		
+		actionIngredients = new ArrayList<Ingredient>();
+		actionIngredients.add(new Ingredient("TEXT", "tweet: new event added description: @DESCRIPTION , location: @LOCATION"));
+		
+		recipeInstance.setTriggerIngredients(triggerIngredients);
+		recipeInstance.setActionIngredients(actionIngredients);
+
+		recipeService.saveRecipeInstance(recipeInstance);
+		log.debug("Adding recipeInstance...added with id " + recipeInstance.getId());
+		recipeService.activeRecipeInstance(recipeInstance.getId());
+		log.debug("RecipeInstance " + recipeInstance.getId() + " activated!");
+		
+		/*-------------*/
+		
+		log.debug("Adding recipeInstance...");
+			
+		recipeInstance = new RecipeInstance();
+		recipeInstance.setUser(user);
+		recipeInstance.setActive(true);
+		recipeInstance.setLastRefresh(null);
+		recipeInstance.setRecipeStruct(recipeStructList.get(2));
+		
+		triggerIngredients = new ArrayList<Ingredient>();
+		triggerIngredients.add(new Ingredient("TEXT", "#JuveGenoa"));
+		
+		actionIngredients = new ArrayList<Ingredient>();
+		actionIngredients.add(new Ingredient("SENDER", "pepe@gmail.it"));
+		actionIngredients.add(new Ingredient("SUBJECT", "new tweet received from @FROM"));
+		actionIngredients.add(new Ingredient("BODY", "tweet text: @TEXT. nLikes: @NLIKES"));
 		
 		recipeInstance.setTriggerIngredients(triggerIngredients);
 		recipeInstance.setActionIngredients(actionIngredients);

@@ -23,7 +23,7 @@ import it.ifttt.security.RestUnauthorizedEntryPoint;
 
 
 @Configuration
-@EnableWebSecurity
+@EnableWebSecurity(debug=true)
 @EnableGlobalMethodSecurity(prePostEnabled=true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 

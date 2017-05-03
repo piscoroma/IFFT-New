@@ -18,6 +18,27 @@ import it.ifttt.domain.User;
 @Component
 public class CalendarEventCreated implements TriggerEvent {
 
+	/*
+	 * Trigger: event-starts
+	 * 
+	 * Ingredienti suportati:
+	 * - SUMMARY: il trigger si scatena solo se il titolo dell'evento coincide
+	 * - DESCRIPTION: il trigger si scatena solo se la descrizione CONTIENE questo testo
+	 * - LOCATION: il trigger si scatena solo se la location è la stessa
+	 * - CREATOR: il trigger si scatena solo se l'email dell'organizzatore coincide con questa
+	 * 
+	 * L'evento che si genera se il trigger è verificato contiene i seguenti elementi:
+	 * - SUMMARY: titolo dell'evento
+	 * - DESCRIPTION: descrizione dell'evento
+	 * - LOCATION: luogo dell'evento
+	 * - CREATOR: organizzatore dell'evento
+	 * - ATTENDEES: lista delle email degli invitati
+	 * - CREATED_DATE: data di creazione dell'evento
+	 * - START_DATE: data di inizio evento (se l'evento è tutto il giorno, l'orario sarà 00:00:00)
+	 * - END_DATE: data di fine evento (se l'evento è tutto il giorno, sarà un giorno dopo di start-date, sempre 00:00:00)
+	 * 
+	 */
+	
 	private final static Logger log = Logger.getLogger(CalendarEventCreated.class);
 
 	private User user;
@@ -33,6 +54,11 @@ public class CalendarEventCreated implements TriggerEvent {
 	public void setLastRefresh(Date lastRefresh) {
 		this.lastRefresh = lastRefresh;
 	}
+	
+	@Override
+	public Date getLastRefresh() {
+		return lastRefresh;
+	}
 
 	@Override
 	public void setUserIngredients(List<Ingredient> ingredients) {
@@ -41,18 +67,20 @@ public class CalendarEventCreated implements TriggerEvent {
 	
 	@Override
 	public List<Object> raise() {
-		List<Object> objects = new ArrayList<Object>();
+		List<Object> events = new ArrayList<Object>();
 		Map<String, String> event = new HashMap<String, String>();
 		event.put("LOCATION", "politecnico");
 		event.put("DESCRIPTION", "festa open day");
 		event.put("CREATOR", "lambichele");
 		event.put("START_DATE", new Date().toString());
-		objects.add((Object)event);
-		return objects;
+		events.add((Object)event);
+		this.lastRefresh = new Date();
+		return events;
 	}
 
 	@Override
 	public List<Ingredient> injectIngredients(List<Ingredient> injeactableIngredient, Object obj) {
+		
 		List<Ingredient> injectedIngredients = new ArrayList<Ingredient>();
 		
 		Map<String, String> event = (Map<String, String>)obj;
@@ -109,6 +137,7 @@ public class CalendarEventCreated implements TriggerEvent {
 		
 		return injectedIngredients;
 	}
+
 
 
 

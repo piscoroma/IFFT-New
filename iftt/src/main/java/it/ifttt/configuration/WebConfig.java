@@ -12,12 +12,12 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 @ComponentScan(basePackages = {"it.ifttt.controllers"})
 public class WebConfig {
 
-	@Bean
+	/*@Bean
 	public ViewResolver viewResolver(){
 		InternalResourceViewResolver irvr = new InternalResourceViewResolver();
 		irvr.setPrefix("/WEB-INF/jsps/");
 		irvr.setSuffix(".jsp");
 		return irvr;
-	}
+	}*/
 }
 

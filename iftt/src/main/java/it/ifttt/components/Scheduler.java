@@ -31,7 +31,7 @@ public class Scheduler {
 	private ActionHandler actionHandler;
 	
 		
-	//@Scheduled(fixedRate=5000)
+	@Scheduled(fixedRate=5000)
 	public void triggerCheckEvent(){
 		
 		log.debug("task activated!");
@@ -47,34 +47,47 @@ public class Scheduler {
 		
 		recipeInstanceList = recipeService.getAllActiveRecipesInstance();
 		log.debug("There are " + recipeInstanceList.size() + " recipes to verify");
-		for(RecipeInstance recipeInstance : recipeInstanceList){			
-			log.debug("Verifing recipe...");
+		for(RecipeInstance recipeInstance : recipeInstanceList){					
+			log.debug("\nVerifing recipeInstance " + recipeInstance.getId() + "...");
+			log.debug("\n" + recipeInstance.getRecipeStruct().getDescription());	
 			lastRefresh = recipeInstance.getLastRefresh();
 			user = recipeInstance.getUser();
 			trigger = recipeInstance.getRecipeStruct().getTrigger();
-			userTriggerIngredients = recipeInstance.getTriggerIngredients();
+			userTriggerIngredients = recipeInstance.getTriggerIngredients();	
 			try{
-				triggerHandler.initialize(trigger);
-				List<Object> triggerParams = triggerHandler.raise(user, userTriggerIngredients, lastRefresh);
-				recipeService.updateRefreshTime(recipeInstance.getId());
-				if(triggerParams.size() > 0){
+				triggerHandler.initialize(trigger);			
+				List<Object> events = null;
+				try{
+				events = triggerHandler.raise(user, userTriggerIngredients, lastRefresh);
+				}catch(Exception e){
+					log.debug("Error during the verify of trigger!");
+					throw e;
+				}	
+				finally{
+					recipeService.updateRefreshTime(recipeInstance.getId(), triggerHandler.getLastRefresh());	
+				}
+				if(events.size()>0){
 					log.debug("Trigger condition is satisfied, so trying to perform the action...");
 					action = recipeInstance.getRecipeStruct().getAction();
 					userActionIngredients = recipeInstance.getActionIngredients();
 					injectableIngredients = recipeInstance.getRecipeStruct().getTrigger().getIngredients();
 					actionHandler.initialize(action);
-					for(Object params : triggerParams){
-						injectedIngredients = triggerHandler.injectIngredients(injectableIngredients, params);
+					for(Object event : events){
+						injectedIngredients = triggerHandler.injectIngredients(injectableIngredients, event);
 						ingredientResolver.resolve(userActionIngredients, injectedIngredients);
-						//actionHandler.setInjectableIngredients(injectedIngredients);
-						actionHandler.perform(user, userActionIngredients);
+						try{
+							actionHandler.perform(user, userActionIngredients);
+						}catch(Exception e){
+							log.debug("Error during the execution of the action!");
+							throw e;
+						}
 					}
 				}else
 					log.debug("Trigger condition is not satisfied");
+				log.debug("Verifing recipeInstance " + recipeInstance.getId() + "...done!");
 			}catch(Exception e){
-				log.debug("Verifing recipe...Exception: " + e.getMessage());
+				log.debug("Verifing recipeInstance " + recipeInstance.getId() + "...Exception: " + e.getMessage());
 			}
-			log.debug("Verifing recipe...done!");
 		}
 		log.debug("All recipes has been verified");
 	
