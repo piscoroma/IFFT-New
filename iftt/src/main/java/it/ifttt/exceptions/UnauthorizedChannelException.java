@@ -8,7 +8,24 @@ public class UnauthorizedChannelException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
+	public UnauthorizedChannelException() {
+    }
+	
 	public UnauthorizedChannelException(String message) {
-		super("Unauthorized Channel: " + message);
+		super(message);
+	}
+
+	public UnauthorizedChannelException(Throwable cause) {
+		super(cause);
+	}
+
+	public UnauthorizedChannelException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public UnauthorizedChannelException(String message, Throwable cause, boolean enableSuppression,
+			boolean writableStackTrace) {
+		super(message, cause, enableSuppression, writableStackTrace);
 	}
 }
+
