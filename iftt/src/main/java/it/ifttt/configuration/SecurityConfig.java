@@ -67,8 +67,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
          //.authenticationProvider(authenticationProvider())
            
          .authorizeRequests()
-             .antMatchers("/helloWorld", "/index.jsp", "/login").permitAll()
-             .antMatchers("/**").authenticated()
+             .antMatchers("/**").permitAll()
+             //.antMatchers("/helloWorld", "/index.jsp", "/login").permitAll()
+         	 //.antMatchers("/**").authenticated()
              .and()
          .exceptionHandling()
              .authenticationEntryPoint(restUnauthorizedEntryPoint)

@@ -55,11 +55,11 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		log.debug("---I'm DatabaseFillerOnStartup---");
 		//testQuery();
 		try{
-			clearDB();
+			/*clearDB();
 			addUsers();
 			addCollectionsChannel();
 			addRecipesStruct();
-			addRecipesInstance();
+			addRecipesInstance();*/
 		}catch(DatabaseException | IllegalArgumentException e){
 			log.debug("Exception: " + e.getMessage());
 		}
@@ -263,9 +263,9 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		RecipeStruct recipeStruct = new RecipeStruct();
 		recipeStruct.setAuthor(user);
 		recipeStruct.setDescription("if a new event is created, send me a mail");
-		recipeStruct.setPublic(false);
+		recipeStruct.setPublic(true);
 		recipeStruct.setTrigger(channelService.getTriggerByName("CALENDAR_EVENT_CREATED"));
-		recipeStruct.setAction(channelService.getActionlByName("SEND_EMAIL"));
+		recipeStruct.setAction(channelService.getActionByName("SEND_EMAIL"));
 		
 		recipeService.saveRecipeStruct(recipeStruct);
 		log.debug("Adding recipeStruct...added with id " + recipeStruct.getId());
@@ -277,9 +277,9 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		recipeStruct = new RecipeStruct();
 		recipeStruct.setAuthor(user);
 		recipeStruct.setDescription("if a new event is created, tweet");
-		recipeStruct.setPublic(false);
+		recipeStruct.setPublic(true);
 		recipeStruct.setTrigger(channelService.getTriggerByName("CALENDAR_EVENT_CREATED"));
-		recipeStruct.setAction(channelService.getActionlByName("TWEET_STATE_ACTION"));
+		recipeStruct.setAction(channelService.getActionByName("TWEET_STATE_ACTION"));
 		
 		recipeService.saveRecipeStruct(recipeStruct);
 		log.debug("Adding recipeStruct...added with id " + recipeStruct.getId());
@@ -293,7 +293,7 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		recipeStruct.setDescription("if receive a tweet, send a mail");
 		recipeStruct.setPublic(false);
 		recipeStruct.setTrigger(channelService.getTriggerByName("NEW_TWEET_EVENT"));
-		recipeStruct.setAction(channelService.getActionlByName("SEND_EMAIL"));
+		recipeStruct.setAction(channelService.getActionByName("SEND_EMAIL"));
 		
 		recipeService.saveRecipeStruct(recipeStruct);
 		log.debug("Adding recipeStruct...added with id " + recipeStruct.getId());

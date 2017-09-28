@@ -14,6 +14,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import it.ifttt.domain.Action;
 import it.ifttt.domain.RecipeInstance;
 import it.ifttt.domain.RecipeStruct;
 import it.ifttt.exceptions.DatabaseException;
@@ -36,7 +37,7 @@ public class RecipeServiceImpl implements RecipeService {
 	private void init() throws RuntimeException{
 		log.debug("Initializing recipeService...");
 		recipeActiveInstanceMap = new HashMap<ObjectId, RecipeInstance>();
-		/*List<RecipeInstance> recipeActiveInstanceList = new ArrayList<RecipeInstance>();
+		List<RecipeInstance> recipeActiveInstanceList = new ArrayList<RecipeInstance>();
 		try{
 			recipeActiveInstanceList = recipeInstanceRepo.findByIsActive(true);
 			for(RecipeInstance recipeInstance : recipeActiveInstanceList)
@@ -44,7 +45,7 @@ public class RecipeServiceImpl implements RecipeService {
 		}catch(Exception e){
 			log.debug("Initializing recipeService...Exception: " + e.getMessage());
 			throw new RuntimeException(e);
-		}*/
+		}
 		log.debug("Initializing recipeService...done!");
 	}
 	
@@ -58,8 +59,62 @@ public class RecipeServiceImpl implements RecipeService {
 	}
 	
 	@Override
-	public List<RecipeStruct> getAllRecipesStruct(){
-		return recipeStructRepo.findAll();
+	public List<RecipeStruct> getAllRecipesStruct() throws DatabaseException{
+		try{
+			return recipeStructRepo.findAll();
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}
+	}
+	
+	@Override
+	public List<RecipeStruct> getAllPublicRecipesStruct() {
+		try{
+			boolean isPublic = true;
+			return recipeStructRepo.findByIsPublic(isPublic);
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}
+	}
+	
+	@Override
+	public RecipeStruct getRecipeStruct(ObjectId id_trigger, ObjectId id_action) throws DatabaseException{
+		List<RecipeStruct> recipeStructList;
+		try{
+			recipeStructList = getAllRecipesStruct();
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}
+		for(RecipeStruct recipeStruct : recipeStructList){
+			if(recipeStruct.getTrigger().getId() == id_trigger)
+				if(recipeStruct.getAction().getId() == id_action)
+					return recipeStruct;
+		}
+		return null;
+	}
+	
+	@Override
+	public void updateRecipeStruct(RecipeStruct recipeStruct) throws DatabaseException, IllegalArgumentException {
+		try{
+			if(recipeStructExists(recipeStruct.getId()))
+				recipeStructRepo.save(recipeStruct);
+			else
+				throw new IllegalArgumentException("RecipeStruct not found");
+		}catch(DatabaseException e){
+			throw new DatabaseException(e);
+		}	
+	}
+	
+	private boolean recipeStructExists(ObjectId id) throws DatabaseException{
+		RecipeStruct recipeStruct = null;
+		try{
+			recipeStruct = recipeStructRepo.findById(id);
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}
+		if(recipeStruct == null)
+			return false;
+		return true;
 	}
 	
 	@Override
@@ -78,6 +133,30 @@ public class RecipeServiceImpl implements RecipeService {
 		}catch(Exception e){
 			throw new DatabaseException(e);
 		}
+	}
+	
+	@Override
+	public void updateRecipeInstance(RecipeInstance recipeInstance) throws DatabaseException, IllegalArgumentException {
+		try{
+			if(recipeInstanceExists(recipeInstance.getId()))
+				recipeInstanceRepo.save(recipeInstance);
+			else
+				throw new IllegalArgumentException("RecipeInstance not found");
+		}catch(DatabaseException e){
+			throw new DatabaseException(e);
+		}	
+	}
+	
+	private boolean recipeInstanceExists(ObjectId id) throws DatabaseException{
+		RecipeInstance recipeInstance = null;
+		try{
+			recipeInstance = recipeInstanceRepo.findById(id);
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}
+		if(recipeInstance == null)
+			return false;
+		return true;
 	}
 	
 	@Override
@@ -175,6 +254,5 @@ public class RecipeServiceImpl implements RecipeService {
 		if(recipeActiveInstanceMap.containsKey(id))
 			recipeActiveInstanceMap.remove(id);
 	}
-
 
 }

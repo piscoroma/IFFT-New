@@ -7,13 +7,17 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.apache.log4j.Logger;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import it.ifttt.domain.Action;
 import it.ifttt.domain.Channel;
 import it.ifttt.domain.Trigger;
+import it.ifttt.exceptions.ActionNotFoundException;
+import it.ifttt.exceptions.ChannelNotFoundException;
 import it.ifttt.exceptions.DatabaseException;
+import it.ifttt.exceptions.TriggerNotFoundException;
 import it.ifttt.repository.ActionRepository;
 import it.ifttt.repository.ChannelRepository;
 import it.ifttt.repository.TriggerRepository;
@@ -41,14 +45,14 @@ public class ChannelServiceImpl implements ChannelService {
 		triggers = Collections.synchronizedList(new ArrayList<Trigger>());
 		actions = Collections.synchronizedList(new ArrayList<Action>());
 		
-		/*try{
+		try{
 			channels = channelRepo.findAll();
 			triggers = triggerRepo.findAll();
 			actions = actionRepo.findAll();
 		}catch(Exception e){
 			log.debug("Initializing channelService...Exception: " + e.getMessage());
 			throw new RuntimeException(e);
-		}*/
+		}
 		log.debug("Initializing channelService...done!");
 	}
 	
@@ -69,12 +73,31 @@ public class ChannelServiceImpl implements ChannelService {
 	}
 	
 	@Override
-	public Channel getChannelByName(String channelName) throws DatabaseException {
+	public Channel getChannelById(ObjectId channel_id) throws DatabaseException, ChannelNotFoundException {
+		Channel channel = null;
 		try{
-			return channelRepo.findByName(channelName);
+			channel = channelRepo.findById(channel_id);
 		}catch(Exception e){
 			throw new DatabaseException(e);
 		}
+		if(channel == null){
+			throw new ChannelNotFoundException();
+		}
+		return channel;
+	}
+	
+	@Override
+	public Channel getChannelByName(String channel_name) throws DatabaseException, ChannelNotFoundException {
+		Channel channel = null;
+		try{
+			channel = channelRepo.findByName(channel_name);
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}
+		if(channel == null){
+			throw new ChannelNotFoundException();
+		}
+		return channel;
 	}
 
 	@Override
@@ -93,12 +116,31 @@ public class ChannelServiceImpl implements ChannelService {
 	}
 	
 	@Override
-	public Trigger getTriggerByName(String triggerName) throws DatabaseException {
+	public Trigger getTriggerById(ObjectId trigger_id) throws DatabaseException, TriggerNotFoundException {
+		Trigger trigger = null;
 		try{
-			return triggerRepo.findByName(triggerName);
+			trigger = triggerRepo.findById(trigger_id);
 		}catch(Exception e){
 			throw new DatabaseException(e);
 		}
+		if(trigger == null){
+			throw new TriggerNotFoundException();
+		}
+		return trigger;
+	}
+	
+	@Override
+	public Trigger getTriggerByName(String trigger_name) throws DatabaseException, TriggerNotFoundException {
+		Trigger trigger = null;
+		try{
+			trigger = triggerRepo.findByName(trigger_name);
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}
+		if(trigger == null){
+			throw new TriggerNotFoundException();
+		}
+		return trigger;
 	}
 	
 	@Override
@@ -126,12 +168,31 @@ public class ChannelServiceImpl implements ChannelService {
 	}
 	
 	@Override
-	public Action getActionlByName(String actionName) throws DatabaseException {
+	public Action getActionById(ObjectId action_id) throws DatabaseException, ActionNotFoundException {
+		Action action = null;
 		try{
-			return actionRepo.findByName(actionName);
+			action = actionRepo.findById(action_id);
 		}catch(Exception e){
 			throw new DatabaseException(e);
 		}
+		if(action == null){
+			throw new ActionNotFoundException();
+		}
+		return action;
+	}
+	
+	@Override
+	public Action getActionByName(String action_name) throws DatabaseException, ActionNotFoundException {
+		Action action = null;
+		try{
+			action = actionRepo.findByName(action_name);
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}
+		if(action == null){
+			throw new ActionNotFoundException();
+		}
+		return action;
 	}
 
 	@Override
@@ -174,6 +235,5 @@ public class ChannelServiceImpl implements ChannelService {
 		triggers.clear();
 		actions.clear();
 	}
-
 
 }

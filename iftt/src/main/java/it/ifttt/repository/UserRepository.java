@@ -10,4 +10,5 @@ import it.ifttt.domain.User;
 public interface UserRepository extends MongoRepository<User, Long> {
 	User findById(ObjectId id);
 	User findByUsername(String username);
+	User findByEmail(String email);
 }

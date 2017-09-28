@@ -2,6 +2,7 @@ package it.ifttt.services;
 
 import java.util.List;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.dao.DuplicateKeyException;
@@ -29,17 +30,68 @@ public class UserServiceImpl implements UserService{
 	}
 
 	@Override
+	public User getUserById(ObjectId id) throws DatabaseException, IllegalArgumentException{
+		User user = null;
+		try{
+			user = userRepo.findById(id);
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}
+		if(user == null)
+			throw new IllegalArgumentException("User not found");
+		return user;
+	}
+	
+	@Override
 	public User getUserByUsername(String username) throws DatabaseException, IllegalArgumentException {
 		User user = null;
 		try{
 			user =  userRepo.findByUsername(username);
-			if(user == null)
-				throw new IllegalArgumentException("Username not found");
-			else 
-				return user;
 		}catch(Exception e){
 			throw new DatabaseException(e);
 		}	
+		if(user == null)
+			throw new IllegalArgumentException("Username not found");
+		return user;
+	}
+	
+	@Override
+	public User getUserByEmail(String email) throws DatabaseException, IllegalArgumentException {
+		User user = null;
+		try{
+			user =  userRepo.findByEmail(email);
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}	
+		if(user == null)
+			throw new IllegalArgumentException("Username not found");
+		return user;
+	}
+	
+	@Override
+	public boolean findUserByUsername(String username) throws DatabaseException{
+		User user = null;
+		try{
+			user =  userRepo.findByUsername(username);
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}	
+		if(user == null)
+			return false;
+		return true;
+	}
+	
+	@Override
+	public boolean findUserByEmail(String email) throws DatabaseException{
+		User user = null;
+		try{
+			user =  userRepo.findByEmail(email);
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}	
+		if(user == null)
+			return false;
+		return true;
 	}
 
 	@Override

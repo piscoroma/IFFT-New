@@ -16,6 +16,7 @@ public class RecipeInstance {
 	@DBRef
 	private User user;
 	private boolean isActive;
+	private String title;
 	private Date lastRefresh;
 	@DBRef
 	private RecipeStruct recipeStruct;
@@ -25,17 +26,19 @@ public class RecipeInstance {
 	public RecipeInstance(){
 	}
 	
-	public RecipeInstance(User user, boolean isActive, RecipeStruct recipeStruct, List<Ingredient> triggerIngredients, List<Ingredient> actionIngredients) {
+	public RecipeInstance(User user, boolean isActive, String title, RecipeStruct recipeStruct, List<Ingredient> triggerIngredients, List<Ingredient> actionIngredients) {
 		this.user = user;
 		this.isActive = isActive;
+		this.title = title;
 		this.recipeStruct = recipeStruct;
 		this.triggerIngredients = triggerIngredients;
 		this.actionIngredients = actionIngredients;
 	}
 	
-	public RecipeInstance(User user, boolean isActive, RecipeStruct recipeStruct) {
+	public RecipeInstance(User user, boolean isActive, String title, RecipeStruct recipeStruct) {
 		this.user = user;
 		this.isActive = isActive;
+		this.title = title;
 		this.recipeStruct = recipeStruct;
 	}
 
@@ -59,6 +62,14 @@ public class RecipeInstance {
 		this.isActive = isActive;
 	}
 
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+	
 	public Date getLastRefresh() {
 		return lastRefresh;
 	}

@@ -34,4 +34,5 @@ public class Channel {
 		this.name = name;
 	}
 	
+	
 }
