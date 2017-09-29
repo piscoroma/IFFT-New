@@ -184,7 +184,7 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 	    injectableIngredients.add(new Ingredient("CC"));
 	    
 	    List<Trigger> triggers = new ArrayList<Trigger>();
-	    triggers.add(new Trigger(channel, "EMAIL_RECEIVED", triggerIngredients, injectableIngredients));
+	    triggers.add(new Trigger(channel, "EMAIL_RECEIVED", "Email received", triggerIngredients, injectableIngredients));
 	    
 	    List<Ingredient> actionIngredients = new ArrayList<Ingredient>();
 	    actionIngredients.add(new Ingredient("TO"));
@@ -215,8 +215,8 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 	    injectableIngredients.add(new Ingredient("END_DATE"));
 	    
 	    List<Trigger> triggers = new ArrayList<Trigger>();
-	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_CREATED", triggerIngredients, injectableIngredients));
-	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_STARTED", triggerIngredients, injectableIngredients));
+	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_CREATED", "Calendar event created", triggerIngredients, injectableIngredients));
+	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_STARTED", "Calendar event started", triggerIngredients, injectableIngredients));
 	    
 	    List<Ingredient> actionIngredients = new ArrayList<Ingredient>(injectableIngredients);
 	    actionIngredients.add(new Ingredient("ALL_DAY"));
@@ -243,7 +243,7 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		injectableIngredients.add(new Ingredient("REPLY_TO_STATUS_ID"));
 		
 		List<Trigger> triggers = new ArrayList<Trigger>();
-		triggers.add(new Trigger(channel, "NEW_TWEET_EVENT", triggerIngredients, injectableIngredients));
+		triggers.add(new Trigger(channel, "NEW_TWEET_EVENT", "New tweet event", triggerIngredients, injectableIngredients));
 		
 		List<Ingredient> actionIngredients = new ArrayList<Ingredient>();
 		actionIngredients.add(new Ingredient("TEXT"));

@@ -37,6 +37,12 @@ public class NewTweetEvent implements TriggerEvent {
 	 * - DATE: data di post del tweet  
 	 * 
 	 */
+	
+	private final String FROM_KEY = "FROM";
+	private final String TEXT_KEY = "TEXT";
+	private final String TWEET_ID_KEY = "TWEET_ID";
+	private final String NLIKES_KEY = "NLIKES";
+	private final String DATE_KEY = "DATE";
 
 	@Autowired
 	private TwitterTemplateCreator twitterTemplateCreator;
@@ -121,9 +127,9 @@ public class NewTweetEvent implements TriggerEvent {
 	
 	private boolean tweetSatisfyTrigger(Tweet tweet) {
 		
-		if (userIngredients.containsKey("FROM") && !userIngredients.get("FROM").equals(tweet.getFromUser()))
+		if (userIngredients.containsKey(FROM_KEY) && !userIngredients.get(FROM_KEY).equals(tweet.getFromUser()))
 				return false;
-		if (userIngredients.containsKey("TEXT") && !tweet.getText().contains(userIngredients.get("TEXT")))
+		if (userIngredients.containsKey(TEXT_KEY) && !tweet.getText().contains(userIngredients.get(TEXT_KEY)))
 			return false;
 		return true;
 	}
@@ -137,19 +143,19 @@ public class NewTweetEvent implements TriggerEvent {
 		
 		for(Ingredient ingr : injeactableIngredient){
 			switch(ingr.getName()){
-			case "FROM": 
+			case FROM_KEY: 
 				injectedIngredients.add(new Ingredient(ingr.getName(), event.getFromUser()));
 				break;
-			case "TEXT": 
+			case TEXT_KEY: 
 				injectedIngredients.add(new Ingredient(ingr.getName(), event.getText()));
 				break;
-			case "TWEET_ID": 
+			case TWEET_ID_KEY: 
 				injectedIngredients.add(new Ingredient(ingr.getName(), Long.toString(event.getId())));
 				break;
-			case "NLIKES": 
+			case NLIKES_KEY: 
 				injectedIngredients.add(new Ingredient(ingr.getName(), event.getFavoriteCount().toString()));
 				break;
-			case "DATE": 
+			case DATE_KEY: 
 				injectedIngredients.add(new Ingredient(ingr.getName(), event.getCreatedAt().toString()));
 				break;
 			default:

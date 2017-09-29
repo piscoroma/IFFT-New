@@ -22,15 +22,17 @@ public class Trigger {
 	public Trigger(){
 	}
 	
-	public Trigger(Channel channel, String name){
+	public Trigger(Channel channel, String name, String description){
 		this.channel = channel;
-		this.description = name;
+		this.name = name;
+		this.description = description;
 		//this.ingredients = new ArrayList<Ingredient>();
 	}
 	
-	public Trigger(Channel channel, String name, List<Ingredient> ingredients, List<Ingredient> injectableIngredients){
+	public Trigger(Channel channel, String name, String description, List<Ingredient> ingredients, List<Ingredient> injectableIngredients){
 		this.channel = channel;
 		this.name = name;
+		this.description = description;
 		this.ingredients = ingredients;
 		this.injectableIngredients = injectableIngredients;
 	}
