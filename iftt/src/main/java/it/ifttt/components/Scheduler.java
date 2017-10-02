@@ -58,7 +58,7 @@ public class Scheduler {
 				triggerHandler.initialize(trigger);			
 				List<Object> events = null;
 				try{
-				events = triggerHandler.raise(user, userTriggerIngredients, lastRefresh);
+					events = triggerHandler.raise(user, userTriggerIngredients, lastRefresh);
 				}catch(Exception e){
 					log.debug("Error during the verify of trigger!");
 					throw e;

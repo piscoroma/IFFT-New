@@ -1,17 +1,27 @@
 package it.ifttt.channel.gcalendar.trigger;
 
+import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.Calendar;
+import com.google.api.services.calendar.model.Event;
+import com.google.api.services.calendar.model.Events;
 import com.google.api.services.gmail.model.Message;
 
 import it.ifttt.channel.TriggerEvent;
 import it.ifttt.domain.Ingredient;
 import it.ifttt.domain.User;
+import it.ifttt.social_api_creators.GcalendarCreator;
 
 @Component
 public class CalendarEventStarted implements TriggerEvent {
@@ -31,17 +41,32 @@ public class CalendarEventStarted implements TriggerEvent {
 	 * - LOCATION: luogo dell'evento
 	 * - CREATOR: organizzatore dell'evento
 	 * - ATTENDEES: lista delle email degli invitati
+	 * - CREATOR_NAME: nome e cognome google del creatore
 	 * - CREATED_DATE: data di creazione dell'evento
 	 * - START_DATE: data di inizio evento (se l'evento è tutto il giorno, l'orario sarà 00:00:00)
 	 * - END_DATE: data di fine evento (se l'evento è tutto il giorno, sarà un giorno dopo di start-date, sempre 00:00:00)
 	 * 
 	 */
 	
+	public static final String SUMMARY_KEY = "summary";
+	public static final String DESCRIPTION_KEY = "description";
+	public static final String LOCATION_KEY = "location";
+	public static final String CREATOR_KEY = "creator";
+	
+	public static final String ATTENDEES_KEY = "attendees";
+	public static final String CREATED_DATE_KEY = "created-date";
+	public static final String CREATOR_NAME_KEY = "creator-name";
+	public static final String START_DATE_KEY = "start-date";
+	public static final String END_DATE_KEY = "end-date";
+	
+	@Autowired
+	private GcalendarCreator gCalendarCreator;
+	
 	private final static Logger log = Logger.getLogger(CalendarEventStarted.class);
 
 	private User user;
 	private Date lastRefresh;
-	private List<Ingredient> userIngredients;
+	private Map<String, String> userIngredients;
 	
 	@Override
 	public void setUser(User user) {
@@ -60,58 +85,122 @@ public class CalendarEventStarted implements TriggerEvent {
 
 	@Override
 	public void setUserIngredients(List<Ingredient> ingredients) {
-		this.userIngredients = ingredients;
+		userIngredients = new HashMap<String, String>();
+		for(Ingredient ingr : ingredients)
+			userIngredients.put(ingr.getName(), ingr.getValue());
 	}
 	
 	@Override
 	public List<Object> raise() {
+		
 		List<Object> events = new ArrayList<Object>();
+		events = getNextEvents();
+		
+		return events;
+		
+		/*List<Object> events = new ArrayList<Object>();
 		log.debug("TRIGGER: i'm CalendarEventStarted");
 		log.debug("user: " + user.toString());
 		log.debug(lastRefresh.toString());
 		log.debug(userIngredients.toString());
 		this.lastRefresh = new Date();
-		return null;
+		return null;*/
 	}
 
 	@Override
 	public List<Ingredient> injectIngredients(List<Ingredient> injeactableIngredient, Object obj) {
+		
 		List<Ingredient> injectedIngredients = new ArrayList<Ingredient>();
 		Message message = (Message)obj;
 		
-		/*for(Ingredient ingr : injeactableIngredient){
+		for(Ingredient ingr : injeactableIngredient){
 			switch(ingr.getName()){
-			case "SUMMARY": 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(SUMMARY_KEY));
+			case SUMMARY_KEY: 
+				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(SUMMARY_KEY)));
 				break;
-			case "DESCRIPTION": 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(DESCRIPTION_KEY));
+			case DESCRIPTION_KEY: 
+				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(DESCRIPTION_KEY)));
 				break;
-			case "LOCATION": 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(LOCATION_KEY));
+			case LOCATION_KEY: 
+				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(LOCATION_KEY)));
 				break;
-			case "CREATOR": 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(CREATOR_KEY));
+			case CREATOR_KEY: 
+				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(CREATOR_KEY)));
 				break;
-			case "CREATED_DATE": 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(CREATED_DATE_KEY));
+			case ATTENDEES_KEY: 
+				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(ATTENDEES_KEY)));
 				break;
-			case "ATTENDEES": 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(ATTENDEES_KEY));
+			case CREATED_DATE_KEY: 
+				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(CREATED_DATE_KEY)));
 				break;
-			case "START_DATE": 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(START_DATE_KEY));
+			case CREATOR_NAME_KEY: 
+				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(CREATOR_NAME_KEY)));
 				break;
-			case "END_DATE": 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(END_DATE_KEY));
+			case START_DATE_KEY: 
+				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(START_DATE_KEY)));
+				break;
+			case END_DATE_KEY: 
+				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(END_DATE_KEY)));
 				break;
 			default:
 			}
-		}*/
+		}
 		
 		return injectedIngredients;
 	}
+	
+	List<Object> getNextEvents() {
+		
+		try {
+			// Get calendar API for user
+			Calendar calendar = gCalendarCreator.getCalendar(user.getUsername());
+			
+			DateTime lastCheck = new DateTime(this.lastRefresh.getTime());
+			DateTime now = new DateTime(System.currentTimeMillis()+10*1000);
+			
+	        // get next events for today
+	        Events events = calendar.events().list("primary")
+	            .setTimeMin(lastCheck)
+	            .setTimeMax(now)
+	            .setOrderBy("startTime")
+	            .setSingleEvents(true)
+	            .execute();
+	        List<Event> items = events.getItems();
+			List<Object> satisfiedEvents = new ArrayList<>();
+	        for (Event event : items) {
+        		if (eventSatisfyTrigger(event)) {
+        			System.out.println("Event satisfy trigger");
+        			satisfiedEvents.add((Object)event);
+        		}
+	        }
+	        return satisfiedEvents;
+		} catch (GeneralSecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
 
+	private boolean eventSatisfyTrigger(Event event) {
+		
+		if (userIngredients.containsKey(SUMMARY_KEY) && (event.getSummary() == null
+				|| !userIngredients.get(SUMMARY_KEY).equals(event.getSummary())))
+			return false;
+		if (userIngredients.containsKey(DESCRIPTION_KEY) && (event.getDescription() == null
+				|| !((String) event.getDescription()).toLowerCase().contains(userIngredients.get(DESCRIPTION_KEY).toLowerCase())))
+			return false;
+		if (userIngredients.containsKey(LOCATION_KEY) && (event.getLocation() == null
+				|| !((String) event.getLocation()).toLowerCase().contains(userIngredients.get(LOCATION_KEY).toLowerCase())))
+			return false;
+		if (userIngredients.containsKey(CREATOR_KEY) && (event.getCreator() == null
+				|| !userIngredients.get(CREATOR_KEY).equals(event.getCreator().getEmail())))
+			return false;
+		
+		return true;
+	}
 	
 
 }

@@ -28,6 +28,9 @@ public class TweetStateAction implements ActionPerformer {
 	 * 
 	*/
 	
+	public static final String TEXT_KEY = "text";
+	public static final String REPLY_TO_STATUS_ID_KEY = "reply-to-status-id";
+	
 	@Autowired
 	private TwitterTemplateCreator twitterTemplateCreator;
 	
@@ -59,9 +62,9 @@ public class TweetStateAction implements ActionPerformer {
 		Twitter twitter = twitterTemplateCreator.getTwitterTemplate(user.getUsername());
 		
 		// post new tweet
-		TweetData tweet = new TweetData(userIngredients.get("TEXT"));
-		if (userIngredients.containsKey("REPLY_TO_STATUS_ID"))
-			tweet.inReplyToStatus(Long.parseLong(userIngredients.get("REPLY_TO_STATUS_ID")));
+		TweetData tweet = new TweetData(userIngredients.get(TEXT_KEY));
+		if (userIngredients.containsKey(REPLY_TO_STATUS_ID_KEY))
+			tweet.inReplyToStatus(Long.parseLong(userIngredients.get(REPLY_TO_STATUS_ID_KEY)));
 		twitter.timelineOperations().updateStatus(tweet);
 		
 		log.debug("ACTION: i'm tweetStateAction...done!");

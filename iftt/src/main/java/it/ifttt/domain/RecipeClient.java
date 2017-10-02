@@ -5,26 +5,33 @@ import java.util.List;
 import org.bson.types.ObjectId;
 
 public class RecipeClient {
-	
-	private ObjectId author_id; 
+
+	private String username; 
 	private String title;
+	private String description;
 	private ObjectId trId;
 	private ObjectId acId;
 	private Boolean isActive;
 	private List<Ingredient> ingrAc;
 	private List<Ingredient> ingrTr;
 	
-	public ObjectId getAuthor_id() {
-		return author_id;
+	public String getUsername() {
+		return username;
 	}
-	public void setAuthor_id(ObjectId author_id) {
-		this.author_id = author_id;
+	public void setUsername(String username) {
+		this.username = username;
 	}
 	public String getTitle() {
 		return title;
 	}
 	public void setTitle(String title) {
 		this.title = title;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	public ObjectId getTrId() {
 		return trId;
@@ -59,7 +66,7 @@ public class RecipeClient {
 	
 	@Override
 	public String toString() {
-		return "RecipeClient [author_id=" + author_id + ", title=" + title + ", trId=" + trId + ", acId="
+		return "RecipeClient [username=" + username + ", title=" + title + ", description=" + description +", trId=" + trId + ", acId="
 				+ acId + ", isActive=" + isActive + ", ingrAc=" + ingrAc + ", ingrTr=" + ingrTr + "]";
 	}
 	

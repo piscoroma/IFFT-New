@@ -14,6 +14,7 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.google.api.Google;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
@@ -30,12 +31,11 @@ import it.ifttt.springSocialMongo.MongoConnection;
 import it.ifttt.springSocialMongo.MongoConnectionRepository;
 import it.ifttt.springSocialMongo.MongoConnectionService;
 
-
 @Component
 @Scope("prototype")
 public class GmailCreator {
 
-	private final String GOOGLE_ID = "google";
+	public static final String GOOGLE_ID = "google";
 	
 	@Autowired
 	private Environment environment;
@@ -121,5 +121,32 @@ public class GmailCreator {
 			userConnection.setRefreshToken(refreshToken);
 			mongoConnectionRepository.addConnection((Connection<?>)userConnection);
 		}
+	}
+	
+public void assertAuthorizedChannel(String username) {
+		
+		Gmail gmail = null;
+		int maxTry = 5;
+		do {
+			try {
+				gmail = getGmail(username);
+				gmail.users().getProfile("me").execute();
+			} catch (GeneralSecurityException | HttpClientErrorException | IOException e) {
+				gmail = null;
+				if (--maxTry == 0)
+					break;
+			}
+		} while (gmail == null);
+		if (gmail == null) {
+			System.out.println("Google NON è un canale autorizzato");
+			MongoConnection userConnection = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(
+					username,
+					GOOGLE_ID
+			));
+			if (userConnection != null)
+				//userConnectionRepository.delete(userConnection);
+			throw new UnauthorizedChannelException(GOOGLE_ID);
+		}
+		System.out.println("Google è un canale autorizzato");
 	}
 }

@@ -33,10 +33,9 @@ public class CalendarCreateEvent implements ActionPerformer {
 	 * Action: create-event
 	 * 
 	 * Ingredienti:
-	 * - SUMMARY: titolo dell'evento
+	 * - SUMMARY: titolo dell'evento [obbligatorio]
 	 * - DESCRIPTION: descrizione dell'evento
 	 * - LOCATION: luogo dell'evento
-	 * - CREATOR: organizzatore dell'evento
 	 * - [ATTENDEES]: lista delle email degli invitati separate da spazi
 	 * - CREATED_DATE: data di creazione dell'evento
 	 * - START_DATE: data di inizio evento (se l'evento è tutto il giorno, l'orario sarà 00:00:00)
@@ -45,6 +44,15 @@ public class CalendarCreateEvent implements ActionPerformer {
 	 * - TIME_ZONE: timezone per le date specificate
 	 * 
 	 */
+	
+	public static final String SUMMARY_KEY = "summary";
+	public static final String DESCRIPTION_KEY = "description";
+	public static final String LOCATION_KEY = "location";
+	public static final String ATTENDEES_KEY = "attendees";
+	public static final String START_DATE_KEY = "start";
+	public static final String END_DATE_KEY = "end";
+	public static final String ALL_DAY_KEY = "all-day";
+	public static final String TIME_ZONE_KEY = "time-zone";
 	
 	@Autowired
 	private GcalendarCreator gcalendarCreator;
@@ -73,20 +81,20 @@ public class CalendarCreateEvent implements ActionPerformer {
 		log.debug(userIngredients.toString());
 		
 		String[] attendees = null;
-		if(userIngredients.containsKey("ATTENDEES")){
-			attendees = userIngredients.get("ATTENDEES").split(" ");
+		if(userIngredients.containsKey(ATTENDEES_KEY)){
+			attendees = userIngredients.get(ATTENDEES_KEY).split(" ");
 		}	
 		
 		Calendar calendar = gcalendarCreator.getCalendar(user.getUsername());
 		
-		Event event = buildEvent(userIngredients.get("SUMMARY"),
-								 userIngredients.get("DESCRIPTION"),	
-								 userIngredients.get("LOCATION"),
+		Event event = buildEvent(userIngredients.get(SUMMARY_KEY),
+								 userIngredients.get(DESCRIPTION_KEY),	
+								 userIngredients.get(LOCATION_KEY),
 								 attendees,
-								 Boolean.parseBoolean(userIngredients.get("ALL_DAY")),
-								 new Date(userIngredients.get("START_DATE")),
-								 new Date(userIngredients.get("END_DATE")),
-								 userIngredients.get("TIME_ZONE"));
+								 Boolean.parseBoolean(userIngredients.get(ALL_DAY_KEY)),
+								 new Date(userIngredients.get(START_DATE_KEY)),
+								 new Date(userIngredients.get(END_DATE_KEY)),
+								 userIngredients.get(TIME_ZONE_KEY));
 		
 		event = calendar.events().insert("primary", event).execute();
 		

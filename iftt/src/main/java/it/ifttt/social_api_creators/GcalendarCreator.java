@@ -14,6 +14,7 @@ import org.springframework.social.connect.Connection;
 import org.springframework.social.connect.ConnectionRepository;
 import org.springframework.social.google.api.Google;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
 
 import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
@@ -34,7 +35,7 @@ import it.ifttt.springSocialMongo.MongoConnectionService;
 @Scope("prototype")
 public class GcalendarCreator {
 
-private final String GOOGLE_ID = "google";
+	public static final String GOOGLE_ID = "google";
 	
 	@Autowired
 	private Environment environment;
@@ -120,5 +121,32 @@ private final String GOOGLE_ID = "google";
 			userConnection.setRefreshToken(refreshToken);
 			mongoConnectionRepository.addConnection((Connection<?>)userConnection);
 		}
+	}
+	
+public void assertAuthorizedChannel(String username) {
+		
+		Calendar calendar = null;
+		int maxTry = 5;
+		do {
+			try {
+				calendar = getCalendar(username);
+				calendar.events().list("primary").execute();
+			} catch (GeneralSecurityException | HttpClientErrorException | IOException e) {
+				calendar = null;
+				if (--maxTry == 0)
+					break;
+			}
+		} while (calendar == null);
+		if (calendar == null) {
+			System.out.println("Google NON è un canale autorizzato");
+			MongoConnection userConnection = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(
+					username,
+					GOOGLE_ID
+			));
+			if (userConnection != null)
+				//userConnectionRepository.delete(userConnection);
+			throw new UnauthorizedChannelException(GOOGLE_ID);
+		}
+		System.out.println("Google è un canale autorizzato");
 	}
 }

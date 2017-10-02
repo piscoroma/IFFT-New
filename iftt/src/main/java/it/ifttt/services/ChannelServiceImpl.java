@@ -9,6 +9,7 @@ import javax.annotation.PostConstruct;
 import org.apache.log4j.Logger;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import it.ifttt.domain.Action;
@@ -18,9 +19,17 @@ import it.ifttt.exceptions.ActionNotFoundException;
 import it.ifttt.exceptions.ChannelNotFoundException;
 import it.ifttt.exceptions.DatabaseException;
 import it.ifttt.exceptions.TriggerNotFoundException;
+import it.ifttt.exceptions.UnauthorizedChannelException;
+import it.ifttt.messages.ChannelStatusMessage;
 import it.ifttt.repository.ActionRepository;
 import it.ifttt.repository.ChannelRepository;
 import it.ifttt.repository.TriggerRepository;
+import it.ifttt.social_api_creators.GcalendarCreator;
+import it.ifttt.social_api_creators.GmailCreator;
+import it.ifttt.social_api_creators.TwitterTemplateCreator;
+import it.ifttt.springSocialMongo.ConnectionConverter;
+import it.ifttt.springSocialMongo.MongoConnection;
+import it.ifttt.springSocialMongo.MongoConnectionService;
 
 @Service
 public class ChannelServiceImpl implements ChannelService {
@@ -234,6 +243,69 @@ public class ChannelServiceImpl implements ChannelService {
 		channels.clear();
 		triggers.clear();
 		actions.clear();
+	}
+	
+	private enum ProviderId {
+	    TWITTER, GOOGLE;
+	}
+
+	@Autowired
+	private MongoConnectionService mongoConnectionService;
+	@Autowired
+	private ConnectionConverter connectionConverter;
+	@Autowired
+	private TwitterTemplateCreator twitterTemplateCreator;
+	@Autowired
+	private GmailCreator gmailCreator;
+	@Autowired
+	private GcalendarCreator calendarCreator;
+
+    public ChannelStatusMessage getStatus(String providerId) {
+    	String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+    	MongoConnection channelInfo = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(userId, providerId));
+    	ChannelStatusMessage channelStatusMessage = new ChannelStatusMessage();
+    	channelStatusMessage.setChannel(providerId);
+    	if((channelInfo)==null || !checkAuthorizedChannel(userId, providerId))
+    		channelStatusMessage.setLogged(false);
+    	else
+    		channelStatusMessage.setLogged(true);
+    	return channelStatusMessage;
+    }
+
+	@Override
+	public List<ChannelStatusMessage> getAllStatus() {
+		List<ChannelStatusMessage> statusList = new ArrayList<>();
+		String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+    	for(ProviderId provider: ProviderId.values())
+    	{
+    		MongoConnection channelInfo = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(userId, provider.name().toLowerCase()));
+        	ChannelStatusMessage channelStatusMessage = new ChannelStatusMessage();
+        	channelStatusMessage.setChannel(provider.name().toLowerCase());
+        	if((channelInfo)==null || !checkAuthorizedChannel(userId, provider.name().toLowerCase()))
+        		channelStatusMessage.setLogged(false);
+        	else
+        		channelStatusMessage.setLogged(true);
+        	statusList.add(channelStatusMessage);
+    	}
+    	return statusList;
+	}
+	
+	private boolean checkAuthorizedChannel(String userId, String providerId) {
+		
+		try {
+			switch (providerId) {
+				case GmailCreator.GOOGLE_ID:
+					gmailCreator.assertAuthorizedChannel(userId);
+					calendarCreator.assertAuthorizedChannel(userId);
+					break;
+				case TwitterTemplateCreator.TWITTER_ID:
+					twitterTemplateCreator.assertAuthorizedChannel(userId);
+					break;
+			}
+			return true;
+		} catch (UnauthorizedChannelException ex) {
+			return false;
+		}
 	}
 
 }

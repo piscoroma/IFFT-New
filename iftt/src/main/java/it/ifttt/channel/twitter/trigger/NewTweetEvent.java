@@ -38,11 +38,11 @@ public class NewTweetEvent implements TriggerEvent {
 	 * 
 	 */
 	
-	private final String FROM_KEY = "FROM";
-	private final String TEXT_KEY = "TEXT";
-	private final String TWEET_ID_KEY = "TWEET_ID";
-	private final String NLIKES_KEY = "NLIKES";
-	private final String DATE_KEY = "DATE";
+	private final String FROM_KEY = "from";
+	private final String TEXT_KEY = "text";
+	private final String TWEET_ID_KEY = "tweet-id";
+	private final String NLIKES_KEY = "favourite-count";
+	private final String DATE_KEY = "date";
 
 	@Autowired
 	private TwitterTemplateCreator twitterTemplateCreator;
@@ -84,6 +84,7 @@ public class NewTweetEvent implements TriggerEvent {
 			Date now = new Date();
 			long seconds = (now.getTime()-lastRefresh.getTime())/1000;
 			if(seconds <= 60)
+				//return
 				throw new Exception("too much request, seconds: " + seconds);
 		}
 		log.debug("-->richiesta a twitter");

@@ -2,7 +2,10 @@ package it.ifttt.channel.gmail.action;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.MessagingException;
@@ -11,6 +14,7 @@ import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
@@ -20,6 +24,7 @@ import com.google.api.services.gmail.model.Message;
 import it.ifttt.channel.ActionPerformer;
 import it.ifttt.domain.Ingredient;
 import it.ifttt.domain.User;
+import it.ifttt.social_api_creators.GmailCreator;
 
 @Component
 public class SendEmail implements ActionPerformer {
@@ -32,17 +37,22 @@ public class SendEmail implements ActionPerformer {
 	 * - [CC]: eventuali altri destinatari
 	 * - SUBJECT: oggetto dell'email
 	 * - BODY: corpo dell'email
+	 * - REPLY_TO: se specificata, manda l'email in risposta a quell'indirizzo.
 	 * 
 	 */
 	
-	private final String TO_KEY = "TO";
-	private final String SUBJECT_KEY = "SUBJECT";
-	private final String BODY_KEY = "BODY";
+	public static final String TO_KEY = "to";
+	public static final String SUBJECT_KEY = "subject";
+	public static final String BODY_KEY = "body";
+	public static final String REPLY_TO_KEY = "reply-to";
   
+	@Autowired
+	GmailCreator gmailCreator;
+	
 	private final static Logger log = Logger.getLogger(SendEmail.class);
 
 	private User user;
-	private List<Ingredient> userIngredients;
+	private Map<String, String> userIngredients;
 	
 	@Override
 	public void setUser(User user) {
@@ -50,15 +60,53 @@ public class SendEmail implements ActionPerformer {
 	}
 
 	@Override
-	public void setUserIngredients(List<Ingredient> userIngredients) {
-		this.userIngredients = userIngredients;
+	public void setUserIngredients(List<Ingredient> userIngredientsList) {
+		userIngredients = new HashMap<String, String>();
+		for(Ingredient ingr : userIngredientsList)
+			userIngredients.put(ingr.getName(), ingr.getValue());	
 	}
 
 	@Override
-	public void perform() {
-		log.debug("ACTION: i'm sendEmail");
+	public void perform() throws GeneralSecurityException {
+		/*log.debug("ACTION: i'm sendEmail");
 		log.debug("user: " + user.toString());
-		log.debug(userIngredients.toString());
+		log.debug(userIngredients.toString());*/
+		
+		// get main ingredients
+		String to = userIngredients.get(TO_KEY); 
+		String subject = userIngredients.get(SUBJECT_KEY); 
+		String body = userIngredients.get(BODY_KEY);
+		String replyTo = null;
+		if (userIngredients.containsKey(REPLY_TO_KEY))
+			replyTo = userIngredients.get(REPLY_TO_KEY);
+		
+		try {
+			// get gmail API for user
+			Gmail gmail = gmailCreator.getGmail(user.getUsername());
+			
+			// create email
+			String from = gmail.users().getProfile("me").execute().getEmailAddress();
+			MimeMessage mime = createEmail(to, from, subject, body);
+			if (replyTo != null)
+				mime.addHeader("Reply-To", replyTo);
+			Message message = createMessageWithEmail(mime);
+
+
+			// send email
+	        message = sendMessage(gmail, from, mime);
+	        System.out.println("Message id: " + message.getId());
+	        System.out.println(message.toPrettyString());
+	        
+	        System.out.println("Performed action 'send-email' of channel Gmail.");
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 	/**
@@ -120,8 +168,6 @@ public class SendEmail implements ActionPerformer {
        
     	Message message = createMessageWithEmail(emailContent);
         message = service.users().messages().send(userId, message).execute();
-        System.out.println("Message id: " + message.getId());
-        System.out.println(message.toPrettyString());
         return message;
     }
 

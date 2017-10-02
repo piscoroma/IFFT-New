@@ -5,6 +5,7 @@ import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -55,11 +56,11 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		log.debug("---I'm DatabaseFillerOnStartup---");
 		//testQuery();
 		try{
-			/*clearDB();
+			clearDB();
 			addUsers();
 			addCollectionsChannel();
 			addRecipesStruct();
-			addRecipesInstance();*/
+			//addRecipesInstance();
 		}catch(DatabaseException | IllegalArgumentException e){
 			log.debug("Exception: " + e.getMessage());
 		}
@@ -163,8 +164,9 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 			addCollectionChannelGMAIL();
 			addCollectionChannelGCALENDAR();
 			addCollectionChannelTWITTER();
+			addCollectionChannelWEATHER();
 		}catch(DatabaseException de){
-			log.debug("Adding CollectionChannelGMAIL...Error! DatabaseException: " + de.getMessage());
+			log.debug("Adding CollectionChannel...Error! DatabaseException: " + de.getMessage());
 			throw de;
 		}
 		log.debug("Adding CollectionChannelGMAIL...Done!");
@@ -233,8 +235,8 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		Channel channel = new Channel("TWITTER");
 		
 		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
-		triggerIngredients.add(new Ingredient("FROM"));
-		triggerIngredients.add(new Ingredient("TEXT"));
+		triggerIngredients.add(new Ingredient("FROM", false, "", "text", null));
+		triggerIngredients.add(new Ingredient("TEXT", false, "", "text", null));
 		
 		List<Ingredient> injectableIngredients = new ArrayList<Ingredient>(triggerIngredients);
 		injectableIngredients.add(new Ingredient("TWEET_ID"));
@@ -251,6 +253,43 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		
 		List<Action> actions = new ArrayList<Action>();
 		actions.add(new Action(channel, "TWEET_STATE_ACTION", actionIngredients));
+		
+		channelService.addCollectionChannel(channel, triggers, actions);
+		
+	}
+	
+	private void addCollectionChannelWEATHER() throws DatabaseException{
+		
+		Channel channel = new Channel("WEATHER");
+		
+		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
+		triggerIngredients.add(new Ingredient("condition", false, "", "list", Arrays.asList("Sunny", "Showers", "Rain", "Mostly Sunny", "Partly Cloudy", "Thunderstorms", "Scattered Showers", "Scattered Thunderstorms")));
+		triggerIngredients.add(new Ingredient("location", true, "", "location", null));
+		triggerIngredients.add(new Ingredient("temperature-high", false, "°C", "number", null));
+		triggerIngredients.add(new Ingredient("temperature-low", false, "°C", "number", null));
+		triggerIngredients.add(new Ingredient("humidity-high", false, "%", "number", null));
+		triggerIngredients.add(new Ingredient("humidity-low", false, "%", "°number", null));
+		triggerIngredients.add(new Ingredient("pressure-high", false, "mb millibar", "number", null));
+		triggerIngredients.add(new Ingredient("pressure-low", false, "mb millibar", "number", null));
+		triggerIngredients.add(new Ingredient("visibility-high", false, "Km", "number", null));
+		triggerIngredients.add(new Ingredient("visibility-low", false, "Km", "number", null));
+		triggerIngredients.add(new Ingredient("wind-speed-high", false, "Km/h", "text", null));
+		triggerIngredients.add(new Ingredient("wind-speed-low", false, "Km/h", "text", null));
+		
+		List<Ingredient> injectableIngredients = new ArrayList<Ingredient>();
+		injectableIngredients.add(new Ingredient("condition"));
+		injectableIngredients.add(new Ingredient("location"));
+		injectableIngredients.add(new Ingredient("title"));
+		injectableIngredients.add(new Ingredient("temperature"));
+		injectableIngredients.add(new Ingredient("humidity"));
+		injectableIngredients.add(new Ingredient("pressure"));
+		injectableIngredients.add(new Ingredient("visibility"));
+		injectableIngredients.add(new Ingredient("wind-speed"));
+		
+		List<Trigger> triggers = new ArrayList<Trigger>();
+		triggers.add(new Trigger(channel, "CURRENT_WEATHER_TRIGGER", "Current weather", triggerIngredients, injectableIngredients));
+		
+		List<Action> actions = new ArrayList<Action>();
 		
 		channelService.addCollectionChannel(channel, triggers, actions);
 		

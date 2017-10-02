@@ -11,6 +11,7 @@ import it.ifttt.exceptions.ActionNotFoundException;
 import it.ifttt.exceptions.ChannelNotFoundException;
 import it.ifttt.exceptions.DatabaseException;
 import it.ifttt.exceptions.TriggerNotFoundException;
+import it.ifttt.messages.ChannelStatusMessage;
 
 public interface ChannelService {
 	
@@ -33,5 +34,8 @@ public interface ChannelService {
 	
 	void deleteAllCollectionChannel() throws DatabaseException;
 	void addCollectionChannel(Channel channel, List<Trigger> triggers, List<Action> actions) throws DatabaseException;
+	
+	ChannelStatusMessage getStatus(String providerId);
+	List<ChannelStatusMessage> getAllStatus();
 
 }

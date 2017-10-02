@@ -18,7 +18,9 @@
     <p>You haven't created any connections with Twitter yet. Click the button to create
        a connection between your account and your Twitter profile.
        (You'll be redirected to Twitter where you'll be asked to authorize the connection.)</p>
-    <input type="hidden" name="scope" value="https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.compose" />
+    <input type="hidden" name="scope" value="https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar https://mail.google.com/" />
+     <!-- <input type="hidden" name="access_type" value="offline">  -->
+      <!-- https://www.googleapis.com/auth/gmail.compose -->
     <p><button type="submit">Connect Google</button></p>
 </form>
 

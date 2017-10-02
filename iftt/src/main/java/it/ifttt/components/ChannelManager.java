@@ -9,6 +9,7 @@ import it.ifttt.channel.TriggerEvent;
 import it.ifttt.channel.gcalendar.GcalendarManager;
 import it.ifttt.channel.gmail.GmailManager;
 import it.ifttt.channel.twitter.TwitterManager;
+import it.ifttt.channel.weather.WeatherManager;
 
 @Component
 public class ChannelManager {
@@ -19,9 +20,8 @@ public class ChannelManager {
 	private GmailManager gmailManager;
 	@Autowired
 	private TwitterManager twitterManager;
-	/*@Autowired
-	private WheaterManager wheatherManager;
-	*/
+	@Autowired
+	private WeatherManager weatherManager;
 	
 	private GenericManager getChannelManager(String channelName){
 		
@@ -37,10 +37,9 @@ public class ChannelManager {
 			case "TWITTER":
 				genericManager = twitterManager;
 				break;
-			/*case "WHEATHER":
-				genericManager = wheatherManager;
+			case "WHEATHER":
+				genericManager = weatherManager;
 				break;
-			*/
 			default:
 		}
 		return genericManager;

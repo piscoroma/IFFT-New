@@ -37,6 +37,7 @@ import it.ifttt.services.RecipeService;
 import it.ifttt.services.UserService;
 
 @RestController
+@CrossOrigin
 public class RestContollerImpl implements it.ifttt.controllers.RestController {
 
 	private final static Logger log = Logger.getLogger(RestContollerImpl.class);
@@ -72,7 +73,7 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	@CrossOrigin
+	//@CrossOrigin
 	@RequestMapping(value="/channels", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public String getAllChannels() {
@@ -81,7 +82,7 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	@CrossOrigin
+	//@CrossOrigin
 	@RequestMapping(value="/channels/{ch_id}", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public String getChannelById(@PathVariable ObjectId ch_id) {
@@ -97,7 +98,7 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	@CrossOrigin
+	//@CrossOrigin
 	@RequestMapping(value="/triggers/{ch_id}", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public String getTriggersByChannelId(@PathVariable ObjectId ch_id) {
@@ -114,7 +115,7 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	@CrossOrigin
+	//@CrossOrigin
 	@RequestMapping(value="/actions/{ch_id}", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public String getActionsByChannelId(@PathVariable ObjectId ch_id) {
@@ -131,7 +132,7 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	@CrossOrigin
+	//@CrossOrigin
 	@RequestMapping(value="/recipes", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.CREATED)
 	public void postRecipe(@RequestBody String json_recipeClient){
@@ -141,15 +142,15 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 		RecipeStruct recipeStruct = recipeService.getRecipeStruct(recipeClient.getTrId(), recipeClient.getAcId());
 		try{
 			if(recipeStruct==null){
-				User author = userService.getUserById(recipeClient.getAuthor_id());
+				User author = userService.getUserByUsername(recipeClient.getUsername());
 				Trigger trigger = channelService.getTriggerById(recipeClient.getTrId());
 				Action action = channelService.getActionById(recipeClient.getAcId());
-				String description = null;
+				String description = recipeClient.getDescription();
 				boolean isPublic = false;
 				recipeStruct = new RecipeStruct(author, description, isPublic, trigger, action);
 				recipeService.saveRecipeStruct(recipeStruct);
 			}
-			User user = userService.getUserById(recipeClient.getAuthor_id());
+			User user = userService.getUserByUsername(recipeClient.getUsername());
 			boolean isActive = recipeClient.getIsActive();
 			String title = recipeClient.getTitle();
 			List<Ingredient> triggerIngredients = recipeClient.getIngrTr();
@@ -165,7 +166,7 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	@CrossOrigin
+	//@CrossOrigin
 	@RequestMapping(value="/recipesStruct/public", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public String getAllPublicRecipesStruct() {
@@ -174,7 +175,7 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 
 	@Override
-	@CrossOrigin
+	//@CrossOrigin
 	@RequestMapping(value="/recipesStruct/{id}", method=RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public void updateRecipeStruct(@RequestBody String json_recipeInstance) {
@@ -190,7 +191,7 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	@CrossOrigin
+	//@CrossOrigin
 	@RequestMapping(value="/recipesInstance/{id}", method=RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public void updateRecipeInstance(@RequestBody String json_recipeInstance) {
