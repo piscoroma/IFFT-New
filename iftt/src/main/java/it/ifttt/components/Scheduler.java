@@ -14,6 +14,7 @@ import it.ifttt.domain.Ingredient;
 import it.ifttt.domain.RecipeInstance;
 import it.ifttt.domain.Trigger;
 import it.ifttt.domain.User;
+import it.ifttt.exceptions.UnauthorizedChannelException;
 import it.ifttt.services.RecipeService;
 
 @Component
@@ -48,8 +49,8 @@ public class Scheduler {
 		recipeInstanceList = recipeService.getAllActiveRecipesInstance();
 		log.debug("There are " + recipeInstanceList.size() + " recipes to verify");
 		for(RecipeInstance recipeInstance : recipeInstanceList){					
-			log.debug("\nVerifing recipeInstance " + recipeInstance.getId() + "...");
-			log.debug("\n" + recipeInstance.getRecipeStruct().getDescription());	
+			log.debug("Verifing recipeInstance " + recipeInstance.getId() + "...");
+			log.debug(recipeInstance.getRecipeStruct().getDescription());	
 			lastRefresh = recipeInstance.getLastRefresh();
 			user = recipeInstance.getUser();
 			trigger = recipeInstance.getRecipeStruct().getTrigger();
@@ -70,7 +71,7 @@ public class Scheduler {
 					log.debug("Trigger condition is satisfied, so trying to perform the action...");
 					action = recipeInstance.getRecipeStruct().getAction();
 					userActionIngredients = recipeInstance.getActionIngredients();
-					injectableIngredients = recipeInstance.getRecipeStruct().getTrigger().getIngredients();
+					injectableIngredients = recipeInstance.getRecipeStruct().getTrigger().getInjectableIngredients();
 					actionHandler.initialize(action);
 					for(Object event : events){
 						injectedIngredients = triggerHandler.injectIngredients(injectableIngredients, event);

@@ -3,6 +3,7 @@ package it.ifttt.social_api_creators;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
+import org.mortbay.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
@@ -52,7 +53,7 @@ public class GmailCreator {
 	@Autowired
 	private ConnectionConverter connectionConverter;
 	
-	public Gmail getGmail(String username) throws GeneralSecurityException, IOException {
+	public Gmail getGmail(String username) throws UnauthorizedChannelException, GeneralSecurityException, IOException {
 		
 		MongoConnection userConnection = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(
 				username,
@@ -103,27 +104,32 @@ public class GmailCreator {
 		
 		ConnectionRepository connectionRepository = appContext.getBean(ConnectionRepository.class);
 		
-		Connection<Google> connection = connectionRepository.getPrimaryConnection(Google.class);
-		
-		if (connection.hasExpired()) {
+		try{
+			Connection<Google> connection = connectionRepository.getPrimaryConnection(Google.class);
 			
-			// save the refresh token (it will became null after refreshing for some spring social mis-function, but it will be still good) 
-			String refreshToken = userConnection.getRefreshToken();
-			
-			// refresh the connection
-			connection.refresh();
-			
-			// store new access token
-			connectionRepository.updateConnection(connection);
-			
-			// save the old still good refresh token
-			userConnection = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(userConnection.getUserId(), "GOOGLE_ID"));
-			userConnection.setRefreshToken(refreshToken);
-			mongoConnectionRepository.addConnection((Connection<?>)userConnection);
+			if (connection.hasExpired()) {
+				Log.debug("connection with google expired");
+				
+				// save the refresh token (it will became null after refreshing for some spring social mis-function, but it will be still good) 
+				String refreshToken = userConnection.getRefreshToken();
+				
+				// refresh the connection
+				connection.refresh();
+				
+				// store new access token
+				connectionRepository.updateConnection(connection);
+				
+				// save the old still good refresh token
+				userConnection = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(userConnection.getUserId(), "GOOGLE_ID"));
+				userConnection.setRefreshToken(refreshToken);
+				mongoConnectionRepository.addConnection((Connection<?>)userConnection);
+			}
+		}catch(Exception e){
+			Log.debug(e.getMessage());
 		}
 	}
 	
-public void assertAuthorizedChannel(String username) {
+public void assertAuthorizedChannel(String username) throws UnauthorizedChannelException {
 		
 		Gmail gmail = null;
 		int maxTry = 5;

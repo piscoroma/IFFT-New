@@ -39,10 +39,10 @@ public class IngredientResolver {
 	private String resolveTag(String tag, List<Ingredient> triggerIngredient){
 		tag = tag.substring(1);
 		for(Ingredient ingr : triggerIngredient){
-			if(ingr.getName().equals(tag))
+			if(ingr.getKey().equals(tag))
 				return "@"+ingr.getValue();
 		}
-		return null;
+		return "undefined";
 	}
 	
 	private String replaceTagInTheIngredient(Ingredient ingredient, String tag, String tagResolved){

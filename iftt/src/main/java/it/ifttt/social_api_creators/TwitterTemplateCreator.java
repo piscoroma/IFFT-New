@@ -30,7 +30,7 @@ public class TwitterTemplateCreator {
 	@Autowired
 	private ConnectionConverter connectionConverter;
  
-	public Twitter getTwitterTemplate(String username) {
+	public Twitter getTwitterTemplate(String username) throws UnauthorizedChannelException {
 	   
 		MongoConnection userConnection = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(
 				username,
@@ -44,13 +44,12 @@ public class TwitterTemplateCreator {
 		String accessToken = userConnection.getAccessToken();
 		String accessTokenSecret = userConnection.getSecret();
 	   
-		TwitterTemplate twitterTemplate = 
-				new TwitterTemplate(consumerKey, consumerSecret, accessToken, accessTokenSecret);
+		TwitterTemplate twitterTemplate = new TwitterTemplate(consumerKey, consumerSecret, accessToken, accessTokenSecret);
 		return twitterTemplate;
 	   
    }
 	
-public void assertAuthorizedChannel(String username) {
+public void assertAuthorizedChannel(String username) throws UnauthorizedChannelException{
 		
 		Twitter twitter = null;
 		

@@ -260,18 +260,6 @@ public class ChannelServiceImpl implements ChannelService {
 	@Autowired
 	private GcalendarCreator calendarCreator;
 
-    public ChannelStatusMessage getStatus(String providerId) {
-    	String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-    	MongoConnection channelInfo = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(userId, providerId));
-    	ChannelStatusMessage channelStatusMessage = new ChannelStatusMessage();
-    	channelStatusMessage.setChannel(providerId);
-    	if((channelInfo)==null || !checkAuthorizedChannel(userId, providerId))
-    		channelStatusMessage.setLogged(false);
-    	else
-    		channelStatusMessage.setLogged(true);
-    	return channelStatusMessage;
-    }
-
 	@Override
 	public List<ChannelStatusMessage> getAllStatus() {
 		List<ChannelStatusMessage> statusList = new ArrayList<>();
@@ -289,6 +277,18 @@ public class ChannelServiceImpl implements ChannelService {
     	}
     	return statusList;
 	}
+	
+	public ChannelStatusMessage getStatus(String providerId) {
+    	String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+    	MongoConnection channelInfo = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(userId, providerId));
+    	ChannelStatusMessage channelStatusMessage = new ChannelStatusMessage();
+    	channelStatusMessage.setChannel(providerId);
+    	if((channelInfo)==null || !checkAuthorizedChannel(userId, providerId))
+    		channelStatusMessage.setLogged(false);
+    	else
+    		channelStatusMessage.setLogged(true);
+    	return channelStatusMessage;
+    }
 	
 	private boolean checkAuthorizedChannel(String userId, String providerId) {
 		

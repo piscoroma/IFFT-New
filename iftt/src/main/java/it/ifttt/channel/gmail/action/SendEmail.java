@@ -24,6 +24,7 @@ import com.google.api.services.gmail.model.Message;
 import it.ifttt.channel.ActionPerformer;
 import it.ifttt.domain.Ingredient;
 import it.ifttt.domain.User;
+import it.ifttt.exceptions.UnauthorizedChannelException;
 import it.ifttt.social_api_creators.GmailCreator;
 
 @Component
@@ -67,10 +68,10 @@ public class SendEmail implements ActionPerformer {
 	}
 
 	@Override
-	public void perform() throws GeneralSecurityException {
-		/*log.debug("ACTION: i'm sendEmail");
+	public void perform() throws UnauthorizedChannelException, GeneralSecurityException, IOException, MessagingException{
+		log.debug("ACTION: i'm sendEmail");
 		log.debug("user: " + user.toString());
-		log.debug(userIngredients.toString());*/
+		log.debug(userIngredients.toString());
 		
 		// get main ingredients
 		String to = userIngredients.get(TO_KEY); 
@@ -80,32 +81,24 @@ public class SendEmail implements ActionPerformer {
 		if (userIngredients.containsKey(REPLY_TO_KEY))
 			replyTo = userIngredients.get(REPLY_TO_KEY);
 		
-		try {
-			// get gmail API for user
-			Gmail gmail = gmailCreator.getGmail(user.getUsername());
-			
-			// create email
-			String from = gmail.users().getProfile("me").execute().getEmailAddress();
-			MimeMessage mime = createEmail(to, from, subject, body);
-			if (replyTo != null)
-				mime.addHeader("Reply-To", replyTo);
-			Message message = createMessageWithEmail(mime);
+		// get gmail API for user
+		Gmail gmail = gmailCreator.getGmail(user.getUsername());
+		
+		// create email
+		String from = gmail.users().getProfile("me").execute().getEmailAddress();
+		MimeMessage mime = createEmail(to, from, subject, body);
+		if (replyTo != null)
+			mime.addHeader("Reply-To", replyTo);
+		Message message = createMessageWithEmail(mime);
 
 
-			// send email
-	        message = sendMessage(gmail, from, mime);
-	        System.out.println("Message id: " + message.getId());
-	        System.out.println(message.toPrettyString());
-	        
-	        System.out.println("Performed action 'send-email' of channel Gmail.");
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		// send email
+        message = sendMessage(gmail, from, mime);
+        System.out.println("Message id: " + message.getId());
+        System.out.println(message.toPrettyString());
+        
+        System.out.println("Performed action 'send-email' of channel Gmail.");
+		
 		
 	}
 	

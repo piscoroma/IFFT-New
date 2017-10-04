@@ -17,6 +17,7 @@ import it.ifttt.channel.TriggerEvent;
 import it.ifttt.channel.gmail.action.SendEmail;
 import it.ifttt.domain.Ingredient;
 import it.ifttt.domain.User;
+import it.ifttt.exceptions.UnauthorizedChannelException;
 import it.ifttt.social_api_creators.TwitterTemplateCreator;
 
 @Component
@@ -76,7 +77,7 @@ public class NewTweetEvent implements TriggerEvent {
 	}
 
 	@Override
-	public List<Object> raise() throws Exception {
+	public List<Object> raise() throws UnauthorizedChannelException, Exception {
 		
 		List<Object> events = new ArrayList<Object>();
 		
@@ -111,11 +112,7 @@ public class NewTweetEvent implements TriggerEvent {
 		Twitter twitter = twitterTemplateCreator.getTwitterTemplate(user.getUsername());
 
 		List<Tweet> tweets = null;
-		try{
-			tweets = twitter.timelineOperations().getHomeTimeline();
-		}catch(Exception e){
-			throw e;
-		}
+		tweets = twitter.timelineOperations().getHomeTimeline();
 		Collections.reverse(tweets);
 		
 		List<Tweet> newTweets = new ArrayList<Tweet>();

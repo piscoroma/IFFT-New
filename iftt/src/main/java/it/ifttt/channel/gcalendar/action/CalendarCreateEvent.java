@@ -24,6 +24,7 @@ import com.google.api.services.calendar.model.EventDateTime;
 import it.ifttt.channel.ActionPerformer;
 import it.ifttt.domain.Ingredient;
 import it.ifttt.domain.User;
+import it.ifttt.exceptions.UnauthorizedChannelException;
 import it.ifttt.social_api_creators.GcalendarCreator;
 
 @Component
@@ -75,7 +76,7 @@ public class CalendarCreateEvent implements ActionPerformer {
 	}
 
 	@Override
-	public void perform() throws Exception{
+	public void perform() throws UnauthorizedChannelException, GeneralSecurityException, IOException{
 		log.debug("ACTION: i'm CalendarCreateEvent");
 		log.debug("user: " + user.toString());
 		log.debug(userIngredients.toString());
@@ -87,11 +88,18 @@ public class CalendarCreateEvent implements ActionPerformer {
 		
 		Calendar calendar = gcalendarCreator.getCalendar(user.getUsername());
 		
+		boolean isAllDay;
+		if(userIngredients.get(ALL_DAY_KEY).equals("true"))
+			isAllDay = true;
+		else
+			isAllDay = false;
+			
+		
 		Event event = buildEvent(userIngredients.get(SUMMARY_KEY),
 								 userIngredients.get(DESCRIPTION_KEY),	
 								 userIngredients.get(LOCATION_KEY),
 								 attendees,
-								 Boolean.parseBoolean(userIngredients.get(ALL_DAY_KEY)),
+								 isAllDay,
 								 new Date(userIngredients.get(START_DATE_KEY)),
 								 new Date(userIngredients.get(END_DATE_KEY)),
 								 userIngredients.get(TIME_ZONE_KEY));

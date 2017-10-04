@@ -2,6 +2,8 @@ package it.ifttt.channel.gcalendar.trigger;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.text.Format;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,11 +18,13 @@ import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.Events;
+import com.google.api.services.calendar.model.Event.Creator;
 import com.google.api.services.gmail.model.Message;
 
 import it.ifttt.channel.TriggerEvent;
 import it.ifttt.domain.Ingredient;
 import it.ifttt.domain.User;
+import it.ifttt.exceptions.UnauthorizedChannelException;
 import it.ifttt.social_api_creators.GcalendarCreator;
 
 @Component
@@ -54,10 +58,10 @@ public class CalendarEventStarted implements TriggerEvent {
 	public static final String CREATOR_KEY = "creator";
 	
 	public static final String ATTENDEES_KEY = "attendees";
-	public static final String CREATED_DATE_KEY = "created-date";
 	public static final String CREATOR_NAME_KEY = "creator-name";
-	public static final String START_DATE_KEY = "start-date";
-	public static final String END_DATE_KEY = "end-date";
+	public static final String CREATED_DATE_KEY = "created";
+	public static final String START_DATE_KEY = "start";
+	public static final String END_DATE_KEY = "end";
 	
 	@Autowired
 	private GcalendarCreator gCalendarCreator;
@@ -91,13 +95,16 @@ public class CalendarEventStarted implements TriggerEvent {
 	}
 	
 	@Override
-	public List<Object> raise() {
+	public List<Object> raise() throws UnauthorizedChannelException, IOException, GeneralSecurityException {
 		
 		List<Object> events = new ArrayList<Object>();
-		events = getNextEvents();
-		
+		List<Event> eventSatisfiedList = new ArrayList<Event>();
+		log.debug("-->richiesta a gcalendar");
+		eventSatisfiedList = getNextEvents();
+		for(Event eventSatisfied : eventSatisfiedList )
+			events.add((Object)eventSatisfied);
 		return events;
-		
+				
 		/*List<Object> events = new ArrayList<Object>();
 		log.debug("TRIGGER: i'm CalendarEventStarted");
 		log.debug("user: " + user.toString());
@@ -111,77 +118,71 @@ public class CalendarEventStarted implements TriggerEvent {
 	public List<Ingredient> injectIngredients(List<Ingredient> injeactableIngredient, Object obj) {
 		
 		List<Ingredient> injectedIngredients = new ArrayList<Ingredient>();
-		Message message = (Message)obj;
+		Event event = (Event)obj;
 		
 		for(Ingredient ingr : injeactableIngredient){
-			switch(ingr.getName()){
-			case SUMMARY_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(SUMMARY_KEY)));
-				break;
-			case DESCRIPTION_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(DESCRIPTION_KEY)));
-				break;
-			case LOCATION_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(LOCATION_KEY)));
-				break;
-			case CREATOR_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(CREATOR_KEY)));
-				break;
-			case ATTENDEES_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(ATTENDEES_KEY)));
-				break;
-			case CREATED_DATE_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(CREATED_DATE_KEY)));
-				break;
-			case CREATOR_NAME_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(CREATOR_NAME_KEY)));
-				break;
-			case START_DATE_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(START_DATE_KEY)));
-				break;
-			case END_DATE_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(END_DATE_KEY)));
-				break;
-			default:
+			try {
+				switch(ingr.getName()){
+				case SUMMARY_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), (String) event.get(SUMMARY_KEY)));
+					break;
+				case DESCRIPTION_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), (String) event.get(DESCRIPTION_KEY)));
+					break;
+				case LOCATION_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), (String) event.get(LOCATION_KEY)));
+					break;
+				case ATTENDEES_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), (String) event.get(ATTENDEES_KEY)));
+					break;
+				case CREATED_DATE_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), event.get(CREATED_DATE_KEY).toString()));
+					break;
+				case CREATOR_NAME_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), (String) ((Creator) event.get(CREATOR_KEY)).getDisplayName()));
+					break;
+				case CREATOR_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), (String) ((Creator) event.get(CREATOR_KEY)).getEmail()));
+					break;
+				case START_DATE_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), event.get(START_DATE_KEY).toString()));
+					break;
+				case END_DATE_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), event.get(END_DATE_KEY).toString()));
+					break;
+				default:
+				}
+			}catch(Exception e){
+				log.error(e.getMessage());
 			}
 		}
-		
 		return injectedIngredients;
 	}
 	
-	List<Object> getNextEvents() {
+	List<Event> getNextEvents() throws IOException, UnauthorizedChannelException, GeneralSecurityException {
 		
-		try {
-			// Get calendar API for user
-			Calendar calendar = gCalendarCreator.getCalendar(user.getUsername());
-			
-			DateTime lastCheck = new DateTime(this.lastRefresh.getTime());
-			DateTime now = new DateTime(System.currentTimeMillis()+10*1000);
-			
-	        // get next events for today
-	        Events events = calendar.events().list("primary")
-	            .setTimeMin(lastCheck)
-	            .setTimeMax(now)
-	            .setOrderBy("startTime")
-	            .setSingleEvents(true)
-	            .execute();
-	        List<Event> items = events.getItems();
-			List<Object> satisfiedEvents = new ArrayList<>();
-	        for (Event event : items) {
-        		if (eventSatisfyTrigger(event)) {
-        			System.out.println("Event satisfy trigger");
-        			satisfiedEvents.add((Object)event);
-        		}
-	        }
-	        return satisfiedEvents;
-		} catch (GeneralSecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
+		// Get calendar API for user
+		Calendar calendar = gCalendarCreator.getCalendar(user.getUsername());
+		
+		DateTime lastCheck = new DateTime(this.lastRefresh.getTime());
+		DateTime now = new DateTime(System.currentTimeMillis()+10*1000);
+		
+        // get next events for today
+        Events events = calendar.events().list("primary")
+            .setTimeMin(lastCheck)
+            .setTimeMax(now)
+            .setOrderBy("startTime")
+            .setSingleEvents(true)
+            .execute();
+        List<Event> items = events.getItems();
+		List<Event> satisfiedEvents = new ArrayList<>();
+        for (Event event : items) {
+    		if (eventSatisfyTrigger(event)) {
+    			System.out.println("Event satisfy trigger");
+    			satisfiedEvents.add(event);
+    		}
+        }
+        return satisfiedEvents;
 	}
 
 	private boolean eventSatisfyTrigger(Event event) {

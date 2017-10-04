@@ -3,6 +3,7 @@ package it.ifttt.social_api_creators;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
+import org.mortbay.log.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
@@ -42,6 +43,7 @@ public class GcalendarCreator {
 
 	@Autowired
 	private ApplicationContext appContext;
+	//private ConnectionRepository connectionRepository;
 	
 	@Autowired
 	private MongoConnectionService mongoConnectionService;
@@ -52,7 +54,7 @@ public class GcalendarCreator {
 	@Autowired
 	private ConnectionConverter connectionConverter;
 	
-	public Calendar getCalendar(String username) throws GeneralSecurityException, IOException {
+	public Calendar getCalendar(String username) throws UnauthorizedChannelException, GeneralSecurityException, IOException {
 				
 		MongoConnection userConnection = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(
 				username,
@@ -103,27 +105,32 @@ public class GcalendarCreator {
 		
 		ConnectionRepository connectionRepository = appContext.getBean(ConnectionRepository.class);
 		
-		Connection<Google> connection = connectionRepository.getPrimaryConnection(Google.class);
-		
-		if (connection.hasExpired()) {
-			
-			// save the refresh token (it will became null after refreshing for some spring social mis-function, but it will be still good) 
-			String refreshToken = userConnection.getRefreshToken();
-			
-			// refresh the connection
-			connection.refresh();
-			
-			// store new access token
-			connectionRepository.updateConnection(connection);
-			
-			// save the old still good refresh token
-			userConnection = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(userConnection.getUserId(), "GOOGLE_ID"));
-			userConnection.setRefreshToken(refreshToken);
-			mongoConnectionRepository.addConnection((Connection<?>)userConnection);
+		try{
+			Connection<Google> connection = connectionRepository.getPrimaryConnection(Google.class);
+
+			if (connection.hasExpired()) {
+				Log.debug("connection with google expired");
+				
+				// save the refresh token (it will became null after refreshing for some spring social mis-function, but it will be still good) 
+				String refreshToken = userConnection.getRefreshToken();
+				
+				// refresh the connection
+				connection.refresh();
+				
+				// store new access token
+				connectionRepository.updateConnection(connection);
+				
+				// save the old still good refresh token
+				userConnection = connectionConverter.convert(mongoConnectionService.getPrimaryConnection(userConnection.getUserId(), "GOOGLE_ID"));
+				userConnection.setRefreshToken(refreshToken);
+				mongoConnectionRepository.addConnection((Connection<?>)userConnection);
+			}
+		}catch(Exception e){
+			Log.debug(e.getMessage());
 		}
 	}
 	
-public void assertAuthorizedChannel(String username) {
+public void assertAuthorizedChannel(String username) throws UnauthorizedChannelException {
 		
 		Calendar calendar = null;
 		int maxTry = 5;

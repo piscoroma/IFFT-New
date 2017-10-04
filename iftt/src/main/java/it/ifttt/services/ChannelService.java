@@ -35,7 +35,7 @@ public interface ChannelService {
 	void deleteAllCollectionChannel() throws DatabaseException;
 	void addCollectionChannel(Channel channel, List<Trigger> triggers, List<Action> actions) throws DatabaseException;
 	
-	ChannelStatusMessage getStatus(String providerId);
 	List<ChannelStatusMessage> getAllStatus();
+	ChannelStatusMessage getStatus(String providerId);
 
 }

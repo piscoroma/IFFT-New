@@ -34,6 +34,7 @@ import it.ifttt.channel.TriggerEvent;
 import it.ifttt.channel.gmail.action.SendEmail;
 import it.ifttt.domain.Ingredient;
 import it.ifttt.domain.User;
+import it.ifttt.exceptions.UnauthorizedChannelException;
 import it.ifttt.social_api_creators.GmailCreator;
 
 @Component
@@ -161,7 +162,7 @@ public class MailReceivedEvent implements TriggerEvent {
 	 * @throws IOException 
 	 * @throws GeneralSecurityException 
 	 */
-	private Message getNextEmail() throws GeneralSecurityException, IOException {
+	private Message getNextEmail() throws UnauthorizedChannelException, GeneralSecurityException, IOException {
 		
 		// Get gmail API for user
 		Gmail gmail = gmailCreator.getGmail(user.getUsername());

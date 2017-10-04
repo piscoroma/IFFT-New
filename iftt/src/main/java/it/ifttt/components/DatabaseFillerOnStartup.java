@@ -59,7 +59,7 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 			clearDB();
 			addUsers();
 			addCollectionsChannel();
-			addRecipesStruct();
+			//addRecipesStruct();
 			//addRecipesInstance();
 		}catch(DatabaseException | IllegalArgumentException e){
 			log.debug("Exception: " + e.getMessage());
@@ -177,22 +177,22 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		Channel channel = new Channel("GMAIL");
 	    
 		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
-		triggerIngredients.add(new Ingredient("FROM"));
-	    triggerIngredients.add(new Ingredient("SUBJECT"));
-	    triggerIngredients.add(new Ingredient("BODY"));
-	    triggerIngredients.add(new Ingredient("DATE"));
+		triggerIngredients.add(new Ingredient("from", "FROM", "From", false, "", "text", null));
+	    triggerIngredients.add(new Ingredient("subject", "SUBJECT", "Subject", false, "", "text", null));
+	    triggerIngredients.add(new Ingredient("body", "BODY", "Body", false, "", "text", null));
+	    triggerIngredients.add(new Ingredient("date", "DATE", "Date", false, "", "data", null));
 	    
 	    List<Ingredient> injectableIngredients = new ArrayList<Ingredient>(triggerIngredients);   
-	    injectableIngredients.add(new Ingredient("CC"));
+	    injectableIngredients.add(new Ingredient("cc", "CC", "CC", false, "", "text", null));
 	    
 	    List<Trigger> triggers = new ArrayList<Trigger>();
 	    triggers.add(new Trigger(channel, "EMAIL_RECEIVED", "Email received", triggerIngredients, injectableIngredients));
 	    
 	    List<Ingredient> actionIngredients = new ArrayList<Ingredient>();
-	    actionIngredients.add(new Ingredient("TO"));
-	    actionIngredients.add(new Ingredient("CC"));
-	    actionIngredients.add(new Ingredient("SUBJECT"));
-	    actionIngredients.add(new Ingredient("BODY"));
+	    actionIngredients.add(new Ingredient("to", "TO", "To", true, "", "text", null));
+	    actionIngredients.add(new Ingredient("cc", "CC", "CC", false, "", "text", null));
+	    actionIngredients.add(new Ingredient("subject", "SUBJECT", "Subject", true, "", "text", null));
+	    actionIngredients.add(new Ingredient("body", "BODY", "Body", false, "", "text", null));
 	    
 	    List<Action> actions = new ArrayList<Action>();
 	    actions.add(new Action(channel, "SEND_EMAIL", actionIngredients));
@@ -205,24 +205,25 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		Channel channel = new Channel("GCALENDAR");
 	    
 		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
-		triggerIngredients.add(new Ingredient("SUMMARY"));
-		triggerIngredients.add(new Ingredient("DESCRIPTION"));
-		triggerIngredients.add(new Ingredient("LOCATION"));
-		triggerIngredients.add(new Ingredient("CREATOR"));
+		triggerIngredients.add(new Ingredient("summary", "SUMMARY", "Summary", false, "title of the event", "text", null));
+		triggerIngredients.add(new Ingredient("description", "DESCRIPTION", "Description", false, "", "text", null));
+		triggerIngredients.add(new Ingredient("location", "LOCATION", "Location", false, "", "text", null));
+		triggerIngredients.add(new Ingredient("creator", "CREATOR_MAIL", "Creator mail", false, "", "text", null));
 	    
-	    List<Ingredient> injectableIngredients = new ArrayList<Ingredient>(triggerIngredients);   
-	    injectableIngredients.add(new Ingredient("CREATED_DATE"));
-	    injectableIngredients.add(new Ingredient("ATTENDEES"));
-	    injectableIngredients.add(new Ingredient("START_DATE"));
-	    injectableIngredients.add(new Ingredient("END_DATE"));
+	    List<Ingredient> injectableIngredients = new ArrayList<Ingredient>(triggerIngredients); 
+	    injectableIngredients.add(new Ingredient("creator-name", "CREATOR_NAME", "Creator name", false, "", "text", null));
+	    injectableIngredients.add(new Ingredient("created", "CREATION_DATE", "Creation Date", false, "", "date", null));
+	    injectableIngredients.add(new Ingredient("attendees", "ATTENDEES", "Attendees", false, "", "text", null));
+	    injectableIngredients.add(new Ingredient("start", "START_DATE", "Start date", false, "", "date", null));
+	    injectableIngredients.add(new Ingredient("end", "END_DATE", "End date", false, "", "date", null));
 	    
 	    List<Trigger> triggers = new ArrayList<Trigger>();
 	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_CREATED", "Calendar event created", triggerIngredients, injectableIngredients));
 	    triggers.add(new Trigger(channel, "CALENDAR_EVENT_STARTED", "Calendar event started", triggerIngredients, injectableIngredients));
 	    
 	    List<Ingredient> actionIngredients = new ArrayList<Ingredient>(injectableIngredients);
-	    actionIngredients.add(new Ingredient("ALL_DAY"));
-	    actionIngredients.add(new Ingredient("TIMEZONE"));
+	    actionIngredients.add(new Ingredient("all-day", "ALL_DAY", "All day", false, "", "list", Arrays.asList("true", "false")));
+	    actionIngredients.add(new Ingredient("time-zone", "TIME_ZONE", "Time zone", false, "", "text", null));
 	    
 	    List<Action> actions = new ArrayList<Action>();
 	    actions.add(new Action(channel, "CALENDAR_CREATE_EVENT", actionIngredients));
@@ -235,21 +236,21 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		Channel channel = new Channel("TWITTER");
 		
 		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
-		triggerIngredients.add(new Ingredient("FROM", false, "", "text", null));
-		triggerIngredients.add(new Ingredient("TEXT", false, "", "text", null));
+		triggerIngredients.add(new Ingredient("from", "FROM", "From", false, "", "text", null));
+		triggerIngredients.add(new Ingredient("text", "TEXT", "Text", false, "", "text", null));
 		
 		List<Ingredient> injectableIngredients = new ArrayList<Ingredient>(triggerIngredients);
-		injectableIngredients.add(new Ingredient("TWEET_ID"));
-		injectableIngredients.add(new Ingredient("NLIKES"));
-		injectableIngredients.add(new Ingredient("DATE"));
-		injectableIngredients.add(new Ingredient("REPLY_TO_STATUS_ID"));
+		injectableIngredients.add(new Ingredient("tweet-id", "TWEET_ID", "Tweet_id", false, "", "number", null));
+		injectableIngredients.add(new Ingredient("favourite-count", "N_LIKES", "n_likes", false, "", "number", null));
+		injectableIngredients.add(new Ingredient("date", "DATE", "Date", false, "", "date", null));
+		injectableIngredients.add(new Ingredient("reply-to-status-id", "REPLY_TO_STATUS_ID", "Reply to status id", false, "", "number", null));
 		
 		List<Trigger> triggers = new ArrayList<Trigger>();
 		triggers.add(new Trigger(channel, "NEW_TWEET_EVENT", "New tweet event", triggerIngredients, injectableIngredients));
 		
 		List<Ingredient> actionIngredients = new ArrayList<Ingredient>();
-		actionIngredients.add(new Ingredient("TEXT"));
-		actionIngredients.add(new Ingredient("REPLY_TO_STATUS_ID"));
+		actionIngredients.add(new Ingredient("text", "TEXT", "Text", false, "", "text", null));
+		actionIngredients.add(new Ingredient("reply-to-status-id", "REPLY_TO_STATUS_ID", "Reply to status id", false, "if present, send the tweet as reply of  this tweet id", "text", null));
 		
 		List<Action> actions = new ArrayList<Action>();
 		actions.add(new Action(channel, "TWEET_STATE_ACTION", actionIngredients));
@@ -263,28 +264,28 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		Channel channel = new Channel("WEATHER");
 		
 		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
-		triggerIngredients.add(new Ingredient("condition", false, "", "list", Arrays.asList("Sunny", "Showers", "Rain", "Mostly Sunny", "Partly Cloudy", "Thunderstorms", "Scattered Showers", "Scattered Thunderstorms")));
-		triggerIngredients.add(new Ingredient("location", true, "", "location", null));
-		triggerIngredients.add(new Ingredient("temperature-high", false, "°C", "number", null));
-		triggerIngredients.add(new Ingredient("temperature-low", false, "°C", "number", null));
-		triggerIngredients.add(new Ingredient("humidity-high", false, "%", "number", null));
-		triggerIngredients.add(new Ingredient("humidity-low", false, "%", "°number", null));
-		triggerIngredients.add(new Ingredient("pressure-high", false, "mb millibar", "number", null));
-		triggerIngredients.add(new Ingredient("pressure-low", false, "mb millibar", "number", null));
-		triggerIngredients.add(new Ingredient("visibility-high", false, "Km", "number", null));
-		triggerIngredients.add(new Ingredient("visibility-low", false, "Km", "number", null));
-		triggerIngredients.add(new Ingredient("wind-speed-high", false, "Km/h", "text", null));
-		triggerIngredients.add(new Ingredient("wind-speed-low", false, "Km/h", "text", null));
+		triggerIngredients.add(new Ingredient("condition", "CONDITION", "Condition", false, "", "list", Arrays.asList("Sunny", "Showers", "Rain", "Mostly Sunny", "Partly Cloudy", "Thunderstorms", "Scattered Showers", "Scattered Thunderstorms")));
+		triggerIngredients.add(new Ingredient("location", "LOCATION", "Location", true, "", "location", null));
+		triggerIngredients.add(new Ingredient("temperature-high", "TEMPERATURE_HIGH", "Temperature high", false, "°C", "number", null));
+		triggerIngredients.add(new Ingredient("temperature-low", "TEMPERATURE_LOW", "Temperature low", false, "°C", "number", null));
+		triggerIngredients.add(new Ingredient("humidity-high", "HUMIDITY_HIGH", "Humidity high", false, "%", "number", null));
+		triggerIngredients.add(new Ingredient("humidity-low", "HUMIDITY_LOW", "Humidity low", false, "%", "°number", null));
+		triggerIngredients.add(new Ingredient("pressure-high", "PRESSURE_HIGH", "Pressure high", false, "mb millibar", "number", null));
+		triggerIngredients.add(new Ingredient("pressure-low", "PRESSURE_HIGH", "Pressure low", false, "mb millibar", "number", null));
+		triggerIngredients.add(new Ingredient("visibility-high", "VISIBILITY_HIGH", "Visibility high", false, "Km", "number", null));
+		triggerIngredients.add(new Ingredient("visibility-low", "VISIBILITY_LOW", "Visibility low", false, "Km", "number", null));
+		triggerIngredients.add(new Ingredient("wind-speed-high", "WIND_SPEED_HIGH", "Wind speed high", false, "Km/h", "text", null));
+		triggerIngredients.add(new Ingredient("wind-speed-low", "WIND_SPEED_LOW", "Wind speed high", false, "Km/h", "text", null));
 		
 		List<Ingredient> injectableIngredients = new ArrayList<Ingredient>();
-		injectableIngredients.add(new Ingredient("condition"));
-		injectableIngredients.add(new Ingredient("location"));
-		injectableIngredients.add(new Ingredient("title"));
-		injectableIngredients.add(new Ingredient("temperature"));
-		injectableIngredients.add(new Ingredient("humidity"));
-		injectableIngredients.add(new Ingredient("pressure"));
-		injectableIngredients.add(new Ingredient("visibility"));
-		injectableIngredients.add(new Ingredient("wind-speed"));
+		injectableIngredients.add(new Ingredient("condition", "CONDITION", "Condition", false, "", "list", Arrays.asList("Sunny", "Showers", "Rain", "Mostly Sunny", "Partly Cloudy", "Thunderstorms", "Scattered Showers", "Scattered Thunderstorms")));
+		injectableIngredients.add(new Ingredient("location", "LOCATION", "Location", false, "", "location", null));
+		injectableIngredients.add(new Ingredient("title", "TITLE", "Title", false, "", "text", null));
+		injectableIngredients.add(new Ingredient("temperature", "TEMPERATURE", "Temperature", false, "°C", "number", null));
+		injectableIngredients.add(new Ingredient("humidity", "HUMIDITY", "Humidity", false, "%", "number", null));
+		injectableIngredients.add(new Ingredient("pressure", "PRESSURE", "Pressure", false, "mb millibar", "number", null));
+		injectableIngredients.add(new Ingredient("visibility", "VISIBILITY", "Visibility", false, "Km", "number", null));
+		injectableIngredients.add(new Ingredient("wind-speed", "WIND_SPEED", "Wind speed", false, "Km/h", "text", null));
 		
 		List<Trigger> triggers = new ArrayList<Trigger>();
 		triggers.add(new Trigger(channel, "CURRENT_WEATHER_TRIGGER", "Current weather", triggerIngredients, injectableIngredients));
@@ -351,12 +352,12 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		recipeInstance.setRecipeStruct(recipeStructList.get(0));
 		
 		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
-		triggerIngredients.add(new Ingredient("LOCATION", "politecnico"));
+		triggerIngredients.add(new Ingredient("location", "politecnico"));
 		
 		List<Ingredient> actionIngredients = new ArrayList<Ingredient>();
-		actionIngredients.add(new Ingredient("SENDER", "giaaovanni.malnati@polito.it"));
-		actionIngredients.add(new Ingredient("SUBJECT", "new event added description: @DESCRIPTION , location: @LOCATION"));
-		actionIngredients.add(new Ingredient("BODY", "event created by @CREATOR . See you soon."));
+		actionIngredients.add(new Ingredient("sender", "piscoroma@gmail.com"));
+		actionIngredients.add(new Ingredient("subject", "new event added description: @DESCRIPTION , location: @LOCATION"));
+		actionIngredients.add(new Ingredient("body", "event created by @CREATOR . See you soon."));
 		
 		recipeInstance.setTriggerIngredients(triggerIngredients);
 		recipeInstance.setActionIngredients(actionIngredients);
@@ -377,10 +378,10 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		recipeInstance.setRecipeStruct(recipeStructList.get(1));
 		
 		triggerIngredients = new ArrayList<Ingredient>();
-		triggerIngredients.add(new Ingredient("LOCATION", "politecnico"));
+		triggerIngredients.add(new Ingredient("location", "politecnico"));
 		
 		actionIngredients = new ArrayList<Ingredient>();
-		actionIngredients.add(new Ingredient("TEXT", "tweet: new event added description: @DESCRIPTION , location: @LOCATION"));
+		actionIngredients.add(new Ingredient("text", "tweet: new event added description: @DESCRIPTION , location: @LOCATION"));
 		
 		recipeInstance.setTriggerIngredients(triggerIngredients);
 		recipeInstance.setActionIngredients(actionIngredients);
@@ -401,12 +402,12 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		recipeInstance.setRecipeStruct(recipeStructList.get(2));
 		
 		triggerIngredients = new ArrayList<Ingredient>();
-		triggerIngredients.add(new Ingredient("TEXT", "#JuveGenoa"));
+		triggerIngredients.add(new Ingredient("text", "#JuveGenoa"));
 		
 		actionIngredients = new ArrayList<Ingredient>();
-		actionIngredients.add(new Ingredient("SENDER", "pepe@gmail.it"));
-		actionIngredients.add(new Ingredient("SUBJECT", "new tweet received from @FROM"));
-		actionIngredients.add(new Ingredient("BODY", "tweet text: @TEXT. nLikes: @NLIKES"));
+		actionIngredients.add(new Ingredient("sender", "pepe@gmail.it"));
+		actionIngredients.add(new Ingredient("subject", "new tweet received from @FROM"));
+		actionIngredients.add(new Ingredient("body", "tweet text: @TEXT. nLikes: @NLIKES"));
 		
 		recipeInstance.setTriggerIngredients(triggerIngredients);
 		recipeInstance.setActionIngredients(actionIngredients);

@@ -50,9 +50,9 @@ public class RecipeServiceImpl implements RecipeService {
 	}
 	
 	@Override
-	public void saveRecipeStruct(RecipeStruct recipeStruct) throws DatabaseException {
+	public RecipeStruct saveRecipeStruct(RecipeStruct recipeStruct) throws DatabaseException {
 		try{
-			recipeStructRepo.save(recipeStruct);
+			return recipeStructRepo.save(recipeStruct);
 		}catch(Exception e){
 			throw new DatabaseException(e);
 		}
@@ -127,9 +127,9 @@ public class RecipeServiceImpl implements RecipeService {
 	}	
 	
 	@Override
-	public void saveRecipeInstance(RecipeInstance recipeInstance) throws DatabaseException {
+	public RecipeInstance saveRecipeInstance(RecipeInstance recipeInstance) throws DatabaseException {
 		try{
-			recipeInstanceRepo.save(recipeInstance);
+			return recipeInstanceRepo.save(recipeInstance);
 		}catch(Exception e){
 			throw new DatabaseException(e);
 		}

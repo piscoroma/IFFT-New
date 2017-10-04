@@ -14,6 +14,7 @@ import it.ifttt.channel.ActionPerformer;
 import it.ifttt.channel.gmail.action.SendEmail;
 import it.ifttt.domain.Ingredient;
 import it.ifttt.domain.User;
+import it.ifttt.exceptions.UnauthorizedChannelException;
 import it.ifttt.social_api_creators.TwitterTemplateCreator;
 
 @Component
@@ -52,7 +53,7 @@ public class TweetStateAction implements ActionPerformer {
 	}
 
 	@Override
-	public void perform() {
+	public void perform() throws UnauthorizedChannelException {
 		
 		log.debug("ACTION: i'm tweetStateAction...processing");
 		log.debug("user: " + user.toString());

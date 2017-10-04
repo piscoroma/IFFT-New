@@ -73,7 +73,6 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	//@CrossOrigin
 	@RequestMapping(value="/channels", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public String getAllChannels() {
@@ -82,7 +81,6 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	//@CrossOrigin
 	@RequestMapping(value="/channels/{ch_id}", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public String getChannelById(@PathVariable ObjectId ch_id) {
@@ -98,7 +96,6 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	//@CrossOrigin
 	@RequestMapping(value="/triggers/{ch_id}", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public String getTriggersByChannelId(@PathVariable ObjectId ch_id) {
@@ -115,7 +112,6 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	//@CrossOrigin
 	@RequestMapping(value="/actions/{ch_id}", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public String getActionsByChannelId(@PathVariable ObjectId ch_id) {
@@ -132,7 +128,6 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	//@CrossOrigin
 	@RequestMapping(value="/recipes", method=RequestMethod.POST)
 	@ResponseStatus(value=HttpStatus.CREATED)
 	public void postRecipe(@RequestBody String json_recipeClient){
@@ -166,7 +161,6 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	//@CrossOrigin
 	@RequestMapping(value="/recipesStruct/public", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public String getAllPublicRecipesStruct() {
@@ -175,7 +169,6 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 
 	@Override
-	//@CrossOrigin
 	@RequestMapping(value="/recipesStruct/{id}", method=RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public void updateRecipeStruct(@RequestBody String json_recipeInstance) {
@@ -191,7 +184,6 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 	}
 	
 	@Override
-	//@CrossOrigin
 	@RequestMapping(value="/recipesInstance/{id}", method=RequestMethod.PUT, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public void updateRecipeInstance(@RequestBody String json_recipeInstance) {

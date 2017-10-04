@@ -13,14 +13,14 @@ import it.ifttt.exceptions.DatabaseException;
 
 public interface RecipeService {
 	
-	void saveRecipeStruct(RecipeStruct recipeStruct) throws DatabaseException;
+	RecipeStruct saveRecipeStruct(RecipeStruct recipeStruct) throws DatabaseException;
 	void updateRecipeStruct(RecipeStruct recipeStruct) throws DatabaseException, IllegalArgumentException;
 	List<RecipeStruct> getAllRecipesStruct();
 	List<RecipeStruct> getAllPublicRecipesStruct();
 	void deleteAllRecipesStruct() throws DatabaseException;
 	RecipeStruct getRecipeStruct(ObjectId id_trigger, ObjectId id_action) throws DatabaseException;
 	
-	void saveRecipeInstance(RecipeInstance recipeInstance) throws DatabaseException;
+	RecipeInstance saveRecipeInstance(RecipeInstance recipeInstance) throws DatabaseException;
 	void updateRecipeInstance(RecipeInstance recipeInstance) throws DatabaseException, IllegalArgumentException;
 	List<RecipeInstance> getAllRecipesInstance();
 	List<RecipeInstance> getAllActiveRecipesInstance();

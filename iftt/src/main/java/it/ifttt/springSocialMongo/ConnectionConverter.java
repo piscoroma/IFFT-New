@@ -48,6 +48,9 @@ public class ConnectionConverter {
 	}
 	
 	public MongoConnection convert(Connection<?> cnn) {
+		if(cnn == null)
+			return null;
+		
 		ConnectionData data = cnn.createData();
 		
 		MongoConnection userConn = new MongoConnection();

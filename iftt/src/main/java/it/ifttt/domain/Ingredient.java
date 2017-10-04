@@ -7,6 +7,8 @@ public class Ingredient {
 
 	private String name;
 	private String value;
+	private String key;
+	private String formattedName;
 	private String description;
 	private String type;
 	private boolean isMandatory;
@@ -24,8 +26,16 @@ public class Ingredient {
 		this.value = value;
 	}
 	
-	public Ingredient(String name, boolean isMandatory, String description, String type, List<String> possibleValues ){
+	public Ingredient(String name, String key, String value){
 		this.name = name;
+		this.key = key;
+		this.value = value;
+	}
+	
+	public Ingredient(String name, String key, String formattedName, boolean isMandatory, String description, String type, List<String> possibleValues ){
+		this.name = name;
+		this.setKey(key);
+		this.setFormattedName(formattedName);
 		this.isMandatory = isMandatory;
 		this.description = description;
 		this.type = type;
@@ -70,5 +80,21 @@ public class Ingredient {
 	}
 	public void setType(String type) {
 		this.type = type;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+	}
+
+	public String getFormattedName() {
+		return formattedName;
+	}
+
+	public void setFormattedName(String formattedName) {
+		this.formattedName = formattedName;
 	}
 }
