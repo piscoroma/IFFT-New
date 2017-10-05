@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -19,6 +20,7 @@ import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.social.twitter.api.Tweet;
@@ -68,7 +70,7 @@ public class MailReceivedEvent implements TriggerEvent {
 	public static final String SUBJECT_KEY = "subject";
 	public static final String BODY_KEY = "body";
 	public static final String CC_KEY = "cc";
-	public static final String DATE_KEY = "date";
+	public static final String DATE_KEY = "internalDate";
 	public static final String FROM_NAME_KEY = "from-name";
 	public static final String TO_NAME_KEY = "to-name";
 	
@@ -112,8 +114,6 @@ public class MailReceivedEvent implements TriggerEvent {
 		while ((email = getNextEmail()) != null) {
 			events.add((Object)email);
 		}
-		
-		this.lastRefresh = new Date();
 		return events;
 	}
 
@@ -124,32 +124,40 @@ public class MailReceivedEvent implements TriggerEvent {
 		Message message = (Message)obj;
 		
 		for(Ingredient ingr : injeactableIngredient){
-			switch(ingr.getName()){
-			case FROM_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(FROM_KEY)));
-				break;
-			case TO_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(TO_KEY)));
-				break;
-			case SUBJECT_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(SUBJECT_KEY)));
-				break;
-			case BODY_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), message.getSnippet()));
-				break;
-			case CC_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(FROM_KEY)));
-				break;
-			/*case DATE_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(DATE_KEY)));
-				break;*/
-			case FROM_NAME_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(FROM_NAME_KEY)));
-				break;
-			case TO_NAME_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), (String) message.get(TO_NAME_KEY)));
-				break;
-			default:
+			try{
+				switch(ingr.getName()){
+				case FROM_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), (String) message.get(FROM_KEY)));
+					break;
+				case TO_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), (String) message.get(TO_KEY)));
+					break;
+				case SUBJECT_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), (String) message.get(SUBJECT_KEY)));
+					break;
+				case BODY_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), (String) message.get("snippet")));
+					break;
+				case CC_KEY: 
+					String cc = "";
+					if(message.get(CC_KEY) != null && ((String[]) message.get(CC_KEY)).length > 0)
+						cc = StringUtils.join((String[]) message.get(CC_KEY), " ");
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), cc));
+					break;
+				case DATE_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), Long.toString((long) (message.get(DATE_KEY)))));
+					break;
+				case FROM_NAME_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), (String) message.get(FROM_NAME_KEY)));
+					break;
+				case TO_NAME_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), (String) message.get(TO_NAME_KEY)));
+					break;
+				default:
+				}
+				
+			}catch(Exception e){
+				log.error(e.getMessage());
 			}
 		}
 		return injectedIngredients;
@@ -209,7 +217,7 @@ public class MailReceivedEvent implements TriggerEvent {
 			return false;
 		if(userIngredients.containsKey(CC_KEY) && message.get(CC_KEY)!=null && !Arrays.asList((String[]) message.get(CC_KEY)).containsAll(Arrays.asList((String[]) userIngredients.get(CC_KEY).split(" "))))
 			return false;
-		if(userIngredients.containsKey(SUBJECT_KEY) && !userIngredients.get(SUBJECT_KEY).equals(message.get(SUBJECT_KEY)))
+		if(userIngredients.containsKey(SUBJECT_KEY) && !((String)message.get(SUBJECT_KEY)).contains(userIngredients.get(SUBJECT_KEY)))
 			return false;
 		if(userIngredients.containsKey(BODY_KEY) && !(message.getSnippet().contains(userIngredients.get(BODY_KEY))))
 			return false;
@@ -230,6 +238,8 @@ public class MailReceivedEvent implements TriggerEvent {
 		String query = "";
 		if(userIngredients.containsKey(FROM_KEY))
 			query += "from:" + userIngredients.get(FROM_KEY);
+		if(getLastRefresh()==null)
+			this.lastRefresh = new Date();
 		query += " after:" + dateFormat.format(getLastRefresh());
 		System.out.println("Query: " + query);
 		return query;

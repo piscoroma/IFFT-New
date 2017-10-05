@@ -10,7 +10,7 @@ public class ForecastWeather {
 
 	@Id
 	private ObjectId id;
-	@DBRef
+	//@DBRef
 	private Weather relatedWeather;
 	private int lapse; // 0-9
 	private String text;

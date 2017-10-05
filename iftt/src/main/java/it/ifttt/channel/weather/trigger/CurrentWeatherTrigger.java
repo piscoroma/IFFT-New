@@ -51,11 +51,11 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 	 * 
 	 * 12. location: località di cui monitorare il meteo (OBBLIGATORIO)
 	 *  
-	 *  Se è presente più di un ingrediente di tipo diverso (ad esempio temperatura sotto i 5°C e direzione del vento = WNW)
+	 *  Se è presente più di un ingrediente di tipo diverso (ad esempio temperatura sotto i 5°C e umidità 23%)
 	 *  allora il trigger viene scatenato solo se si verificano entrambi contemporaneamente.
 	 *  
-	 *  Vengono iniettati nell'action come ingredienti 'event:chaveoriginale' i valori misurati:
-	 * 1. title: rappresenta il canale meteo, è una stringa tipo "Yahoo! Weather - Troina, SC, IT"
+	 *  L'evento che si genera se il trigger è verificato contiene i seguenti elementi:
+	 * 1. title: rappresenta il canale meteo, è una stringa tipo "Yahoo! Weather - Torino, TO, IT"
 	 * 2. temperature: temperatura misurata (°C)
 	 * 3. humidity: umidità misurata (in %)
 	 * 4. pressure: pressione misurata (in mb)
@@ -123,18 +123,18 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		List<Object> events = new ArrayList<Object>();
 		Weather weather;
 		
-		// se il trigger è stato scatenato nell'ultimo giorno, non lo controllo più.
+		// se il trigger è stato scatenato nell'ultimo minuto, non lo controllo più.
 		if(lastRefresh!=null){
 			Date now = new Date();
-			long hours = ChronoUnit.HOURS.between(lastRefresh.toInstant(), now.toInstant());
-			if(hours <= 24)
+			long minutes = ChronoUnit.MINUTES.between(lastRefresh.toInstant(), now.toInstant());
+			if(minutes <= 1)
 				return events;
 		}
 		log.debug("-->richiesta a weather");
 		if ((weather = getNextWeather()) != null)
 			events.add((Object)weather);
 		
-		//this.lastRefresh = new Date();
+		this.lastRefresh = new Date();
 		return events;
 	}
 
@@ -148,28 +148,28 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		for(Ingredient ingr : injeactableIngredient){
 			switch(ingr.getName()){
 			case CONDITION_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), weather.getText()));
+				injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), weather.getText()));
 				break;
 			case LOCATION_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), weather.getLocation()));
+				injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), weather.getLocation()));
 				break;
 			case TITLE_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), weather.getTitle()));
+				injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), weather.getTitle()));
 				break;
 			case TEMPERATURE_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), String.valueOf(weather.getTemperature())));
+				injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), String.valueOf(weather.getTemperature())));
 				break;
 			case HUMIDITY_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), String.valueOf(weather.getHumidity())));
+				injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), String.valueOf(weather.getHumidity())));
 				break;
 			case PRESSURE_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), String.valueOf(weather.getPressure())));
+				injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), String.valueOf(weather.getPressure())));
 				break;
 			case VISIBILITY_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), String.valueOf(weather.getVisibility())));
+				injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), String.valueOf(weather.getVisibility())));
 				break;
 			case WIND_SPEED_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), String.valueOf(weather.getWindSpeed())));
+				injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), String.valueOf(weather.getWindSpeed())));
 				break;
 			default:
 			}
@@ -186,7 +186,7 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		
 		Weather weather = weatherService.getWeatherByLocation(userIngredients.get(LOCATION_KEY));
 		if (weatherSatisfyTrigger(weather)) {
-			this.lastRefresh = new Date();
+			//this.lastRefresh = new Date();
 			return weather;
 		}
 		return null;
@@ -200,9 +200,7 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		// [temperature]
 		if (userIngredients.containsKey(TEMPERATURE_HIGH_KEY) || userIngredients.containsKey(TEMPERATURE_LOW_KEY)) {
 			if (!userIngredients.containsKey(TEMPERATURE_HIGH_KEY))
-				//addIngredient(new Ingredient(TEMPERATURE_HIGH_KEY, String.valueOf(Integer.MAX_VALUE)));
 			if (!userIngredients.containsKey(TEMPERATURE_LOW_KEY))
-				//addIngredient(new Ingredient(TEMPERATURE_LOW_KEY, String.valueOf(Integer.MIN_VALUE)));
 			if (weather.getTemperature() > Integer.parseInt(userIngredients.get(TEMPERATURE_LOW_KEY)) 
 					&& weather.getTemperature() < Integer.parseInt(userIngredients.get(TEMPERATURE_HIGH_KEY)))
 				return false;
@@ -210,9 +208,7 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		// [humidity]
 		if (userIngredients.containsKey(HUMIDITY_HIGH_KEY) || userIngredients.containsKey(HUMIDITY_LOW_KEY)) {
 			if (!userIngredients.containsKey(HUMIDITY_HIGH_KEY))
-				//addIngredient(new Ingredient(HUMIDITY_HIGH_KEY, "100"));
 			if (!userIngredients.containsKey(HUMIDITY_LOW_KEY))
-				//addIngredient(new Ingredient(HUMIDITY_LOW_KEY, "0"));
 			if (weather.getHumidity() > Integer.parseInt(userIngredients.get(HUMIDITY_LOW_KEY)) 
 					&& weather.getHumidity() < Integer.parseInt(userIngredients.get(HUMIDITY_HIGH_KEY)))
 				return false;
@@ -220,9 +216,7 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		// [pressure]
 		if (userIngredients.containsKey(PRESSURE_HIGH_KEY) || userIngredients.containsKey(PRESSURE_LOW_KEY)) {
 			if (!userIngredients.containsKey(PRESSURE_HIGH_KEY))
-				//addIngredient(new Ingredient(PRESSURE_HIGH_KEY, String.valueOf(Float.MAX_VALUE)));
 			if (!userIngredients.containsKey(PRESSURE_LOW_KEY))
-				//addIngredient(new Ingredient(PRESSURE_LOW_KEY, String.valueOf(Float.MIN_VALUE)));
 			if (weather.getPressure() > Float.parseFloat(userIngredients.get(PRESSURE_LOW_KEY)) 
 					&& weather.getPressure() < Float.parseFloat(userIngredients.get(PRESSURE_HIGH_KEY)))
 				return false;
@@ -230,9 +224,7 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		// [visibility]
 		if (userIngredients.containsKey(VISIBILITY_HIGH_KEY) || userIngredients.containsKey(VISIBILITY_LOW_KEY)) {
 			if (!userIngredients.containsKey(VISIBILITY_HIGH_KEY))
-				//addIngredient(new Ingredient(VISIBILITY_HIGH_KEY, String.valueOf(Float.MAX_VALUE)));
 			if (!userIngredients.containsKey(VISIBILITY_LOW_KEY))
-				//addIngredient(new Ingredient(VISIBILITY_LOW_KEY, String.valueOf(Float.MIN_VALUE)));
 			if (weather.getVisibility() > Float.parseFloat(userIngredients.get(VISIBILITY_LOW_KEY)) 
 					&& weather.getVisibility() < Float.parseFloat(userIngredients.get(VISIBILITY_HIGH_KEY)))
 				return false;
@@ -240,9 +232,7 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		// [wind speed]
 		if (userIngredients.containsKey(WIND_SPEED_HIGH_KEY) || userIngredients.containsKey(WIND_SPEED_LOW_KEY)) {
 			if (!userIngredients.containsKey(WIND_SPEED_HIGH_KEY))
-				//addIngredient(new Ingredient(WIND_SPEED_HIGH_KEY, String.valueOf(Float.MAX_VALUE)));
 			if (!userIngredients.containsKey(WIND_SPEED_LOW_KEY))
-				//addIngredient(new Ingredient(WIND_SPEED_LOW_KEY, String.valueOf(Float.MIN_VALUE)));
 			if (weather.getWindSpeed() > Float.parseFloat(userIngredients.get(WIND_SPEED_LOW_KEY)) 
 					&& weather.getWindSpeed() < Float.parseFloat(userIngredients.get(WIND_SPEED_HIGH_KEY)))
 				return false;

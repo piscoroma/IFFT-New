@@ -51,9 +51,6 @@ public class WeatherService {
 
 	private Channel downloadData(String location) {
 		try {
-			// get weather API
-			//YahooWeatherService yahooService = new YahooWeatherService();
-
 			// get info for the specified location
 			LimitDeclaration limit = yahooService.getForecastForLocation(location, DegreeUnit.CELSIUS);
 
@@ -70,18 +67,20 @@ public class WeatherService {
 
 	public Weather getWeatherByLocation(String location) {
 		Weather weather = weatherRepository.findByLocation(location);
-		synchronized (weather) { // mi evita che due o più thread scaricano gli stessi dati!
-			Calendar now = Calendar.getInstance();
-			now.setTime(new Date());
-			Calendar deadline = Calendar.getInstance();
-			deadline.setTime(weather.getDownloaded());
-			deadline.add(Calendar.MINUTE, 10);
-			if(now.after(deadline))
-			{
-				System.out.println("Weather with location: "+weather.getLocation()+"needs to be refreshed");
-				weather.fillWithNewData(downloadData(weather.getLocation()));
-				weatherRepository.save(weather);
-			}
+		if(weather == null){
+			String rightLocation = downloadWeatherData(location);
+			weather = weatherRepository.findByLocation(rightLocation);
+		}
+		Calendar now = Calendar.getInstance();
+		now.setTime(new Date());
+		Calendar deadline = Calendar.getInstance();
+		deadline.setTime(weather.getDownloaded());
+		deadline.add(Calendar.MINUTE, 10);
+		if(now.after(deadline))
+		{
+			System.out.println("Weather with location: "+weather.getLocation()+"needs to be refreshed");
+			weather.fillWithNewData(downloadData(weather.getLocation()));
+			weatherRepository.save(weather);
 		}
 		return weather;
 	}

@@ -7,8 +7,6 @@ import it.ifttt.channel.ActionPerformer;
 import it.ifttt.channel.GenericManager;
 import it.ifttt.channel.TriggerEvent;
 import it.ifttt.channel.weather.trigger.CurrentWeatherTrigger;
-import it.ifttt.channel.weather.trigger.ReportWeatherTrigger;
-import it.ifttt.channel.weather.trigger.SunWeatherTrigger;
 
 @Component
 public class WeatherManager implements GenericManager {
@@ -17,10 +15,6 @@ public class WeatherManager implements GenericManager {
 	
 	@Autowired
 	private CurrentWeatherTrigger currentWeatherTrigger;
-	/*@Autowired
-	private ReportWeatherTrigger reportWeatherTrigger;
-	@Autowired
-	private SunWeatherTrigger sunWeatherTrigger;*/
 	
 	@Override
 	public TriggerEvent setTriggerEvent(String triggerName) {
@@ -31,12 +25,6 @@ public class WeatherManager implements GenericManager {
 			case "CURRENT_WEATHER_TRIGGER":
 				event = currentWeatherTrigger;
 				break;
-			/*case "REPORT_WEATHER_TRIGGER":
-				event = reportWeatherTrigger;
-				break;
-			case "SUN_WEATHER_TRIGGER":
-				event = sunWeatherTrigger;
-				break;*/
 			default:
 		}
 		return event;

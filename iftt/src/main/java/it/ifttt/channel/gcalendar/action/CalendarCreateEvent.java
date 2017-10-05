@@ -81,34 +81,49 @@ public class CalendarCreateEvent implements ActionPerformer {
 		log.debug("user: " + user.toString());
 		log.debug(userIngredients.toString());
 		
+		// main ingredients
+		String summary = null;
+		String description = null;
+		String location = null;
+		String timeZone = null;
+		Date start = new Date();
+		Date end = new Date(start.getTime());	
 		String[] attendees = null;
-		if(userIngredients.containsKey(ATTENDEES_KEY)){
+		boolean isAllDay = false;
+		
+		// fetch main ingredients
+		if(userIngredients.containsKey(SUMMARY_KEY))
+			summary = userIngredients.get(SUMMARY_KEY);
+		if(userIngredients.containsKey(DESCRIPTION_KEY))
+			description = userIngredients.get(DESCRIPTION_KEY);
+		if(userIngredients.containsKey(LOCATION_KEY))
+			location = userIngredients.get(LOCATION_KEY);
+		if(userIngredients.containsKey(TIME_ZONE_KEY))
+			timeZone = userIngredients.get(TIME_ZONE_KEY);
+		if(userIngredients.containsKey(START_DATE_KEY))
+			start = new Date(userIngredients.get(START_DATE_KEY));
+		if(userIngredients.containsKey(END_DATE_KEY))
+			end = new Date(userIngredients.get(END_DATE_KEY));
+		if(userIngredients.containsKey(ATTENDEES_KEY))
 			attendees = userIngredients.get(ATTENDEES_KEY).split(" ");
-		}	
+		if(userIngredients.containsKey(ALL_DAY_KEY) && userIngredients.get(ALL_DAY_KEY).equals("true"))
+			isAllDay = true;
 		
 		Calendar calendar = gcalendarCreator.getCalendar(user.getUsername());
 		
-		boolean isAllDay;
-		if(userIngredients.get(ALL_DAY_KEY).equals("true"))
-			isAllDay = true;
-		else
-			isAllDay = false;
-			
-		
-		Event event = buildEvent(userIngredients.get(SUMMARY_KEY),
-								 userIngredients.get(DESCRIPTION_KEY),	
-								 userIngredients.get(LOCATION_KEY),
+		Event event = buildEvent(summary,
+								 description,	
+								 location,
 								 attendees,
 								 isAllDay,
-								 new Date(userIngredients.get(START_DATE_KEY)),
-								 new Date(userIngredients.get(END_DATE_KEY)),
-								 userIngredients.get(TIME_ZONE_KEY));
+								 start,
+								 end,
+								 timeZone);
 		
 		event = calendar.events().insert("primary", event).execute();
 		
 		log.debug("Event created: " + event.getHtmlLink());
 		log.debug("Performed action 'create-event' of channel Calendar.");		
-
 	}
 	
 	private Event buildEvent(String summary, 

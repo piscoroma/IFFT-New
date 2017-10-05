@@ -86,7 +86,7 @@ public class NewTweetEvent implements TriggerEvent {
 			long seconds = (now.getTime()-lastRefresh.getTime())/1000;
 			if(seconds <= 60)
 				//return
-				throw new Exception("too much request, seconds: " + seconds);
+				throw new Exception("too much request, wait " + (60-seconds) + " seconds.");
 		}
 		log.debug("-->richiesta a twitter");
 		List<Tweet> newTweets = null;
@@ -117,7 +117,7 @@ public class NewTweetEvent implements TriggerEvent {
 		
 		List<Tweet> newTweets = new ArrayList<Tweet>();
 		for (Tweet tweet : tweets) {
-			if (tweet.getCreatedAt().after(lastRefresh))
+			if (this.lastRefresh==null || tweet.getCreatedAt().after(lastRefresh))
 				newTweets.add(tweet);				
 		}
 		return newTweets;
@@ -140,23 +140,27 @@ public class NewTweetEvent implements TriggerEvent {
 		Tweet event = (Tweet)obj;
 		
 		for(Ingredient ingr : injeactableIngredient){
-			switch(ingr.getName()){
-			case FROM_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), event.getFromUser()));
-				break;
-			case TEXT_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), event.getText()));
-				break;
-			case TWEET_ID_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), Long.toString(event.getId())));
-				break;
-			case NLIKES_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), event.getFavoriteCount().toString()));
-				break;
-			case DATE_KEY: 
-				injectedIngredients.add(new Ingredient(ingr.getName(), event.getCreatedAt().toString()));
-				break;
-			default:
+			try{
+				switch(ingr.getName()){
+				case FROM_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), event.getFromUser()));
+					break;
+				case TEXT_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), event.getText()));
+					break;
+				case TWEET_ID_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), Long.toString(event.getId())));
+					break;
+				case NLIKES_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), event.getFavoriteCount().toString()));
+					break;
+				case DATE_KEY: 
+					injectedIngredients.add(new Ingredient(ingr.getName(), ingr.getKey(), event.getCreatedAt().toString()));
+					break;
+				default:
+				}
+			}catch(Exception e){
+				log.debug(e.getMessage());
 			}
 		}
 		

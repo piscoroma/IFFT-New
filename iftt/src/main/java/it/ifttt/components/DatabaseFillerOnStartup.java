@@ -177,13 +177,16 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		Channel channel = new Channel("GMAIL");
 	    
 		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
-		triggerIngredients.add(new Ingredient("from", "FROM", "From", false, "", "text", null));
+		triggerIngredients.add(new Ingredient("from", "SENDER", "From", false, "", "text", null));
 	    triggerIngredients.add(new Ingredient("subject", "SUBJECT", "Subject", false, "", "text", null));
 	    triggerIngredients.add(new Ingredient("body", "BODY", "Body", false, "", "text", null));
-	    triggerIngredients.add(new Ingredient("date", "DATE", "Date", false, "", "data", null));
+	    triggerIngredients.add(new Ingredient("internalDate", "DATE", "Date", false, "", "data", null));
 	    
 	    List<Ingredient> injectableIngredients = new ArrayList<Ingredient>(triggerIngredients);   
 	    injectableIngredients.add(new Ingredient("cc", "CC", "CC", false, "", "text", null));
+	    injectableIngredients.add(new Ingredient("from-name", "SENDER_NAME", "Sender name", false, "", "text", null));
+	    injectableIngredients.add(new Ingredient("to-name", "RECEIVER_NAME", "Reveiver name", false, "", "text", null));
+	    injectableIngredients.add(new Ingredient("date", "DATE", "Date", false, "", "date", null));
 	    
 	    List<Trigger> triggers = new ArrayList<Trigger>();
 	    triggers.add(new Trigger(channel, "EMAIL_RECEIVED", "Email received", triggerIngredients, injectableIngredients));

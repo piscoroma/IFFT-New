@@ -49,11 +49,20 @@ public class ProvaController {
 		
 		RecipeStruct recipeStruct = new RecipeStruct();
 		recipeStruct.setAuthor(user);
-		recipeStruct.setDescription("if a new event is created, send me a mail");
+		//recipeStruct.setDescription("if a new event is created, send me a mail");
+		//recipeStruct.setDescription("if a new event is created, tweet me");
+		//recipeStruct.setDescription("if receive an email, add event on calendar");
+		//recipeStruct.setDescription("if someone tweet 'facebook' send me an email");
+		recipeStruct.setDescription("if current weather is verified send me an email");
 		recipeStruct.setPublic(true);
-		recipeStruct.setTrigger(channelService.getTriggerByName("CALENDAR_EVENT_CREATED"));
-		//recipeStruct.setAction(channelService.getActionByName("SEND_EMAIL"));
-		recipeStruct.setAction(channelService.getActionByName("TWEET_STATE_ACTION"));
+		//recipeStruct.setTrigger(channelService.getTriggerByName("CALENDAR_EVENT_CREATED"));
+		//recipeStruct.setTrigger(channelService.getTriggerByName("EMAIL_RECEIVED"));
+		//recipeStruct.setTrigger(channelService.getTriggerByName("NEW_TWEET_EVENT"));
+		recipeStruct.setTrigger(channelService.getTriggerByName("CURRENT_WEATHER_TRIGGER"));
+		
+		recipeStruct.setAction(channelService.getActionByName("SEND_EMAIL"));
+		//recipeStruct.setAction(channelService.getActionByName("TWEET_STATE_ACTION"));
+		//recipeStruct.setAction(channelService.getActionByName("CALENDAR_CREATE_EVENT"));
 		recipeStruct = recipeService.saveRecipeStruct(recipeStruct);
 		
 		RecipeInstance recipeInstance = new RecipeInstance();
@@ -62,10 +71,21 @@ public class ProvaController {
 		recipeInstance.setActive(true);
 		
 		List<Ingredient> triggerIngredients = new ArrayList<Ingredient>();
-		triggerIngredients.add(new Ingredient("location", "politecnico"));
+		//triggerIngredients.add(new Ingredient("location", "politecnico"));
+		//triggerIngredients.add(new Ingredient("from", "piscoroma@gmail.com"));
+		//triggerIngredients.add(new Ingredient("subject", "evento"));
+		triggerIngredients.add(new Ingredient("location", "roma"));
+		triggerIngredients.add(new Ingredient("condition", "Sunny"));
 		
 		List<Ingredient> actionIngredients = new ArrayList<Ingredient>();
-		actionIngredients.add(new Ingredient("text", "event created at @LOCATION by @CREATOR_NAME"));
+		actionIngredients.add(new Ingredient("to", "piscoroma@gmail.com"));
+		actionIngredients.add(new Ingredient("subject", "current weather in @LOCATION"));
+		actionIngredients.add(new Ingredient("body", "the weather in @LOCATION is satisfied, condition is: @CONDITION"));
+		//actionIngredients.add(new Ingredient("summary", "new event by @SENDER"));
+		//actionIngredients.add(new Ingredient("description", "il body dell'email è: @BODY"));
+		//actionIngredients.add(new Ingredient("location", "da definire"));
+		//actionIngredients.add(new Ingredient("all-day", "true"));
+		//actionIngredients.add(new Ingredient("text", "event created at @LOCATION by @CREATOR_NAME"));
 		//actionIngredients.add(new Ingredient("to", "piscoroma@gmail.com"));
 		//actionIngredients.add(new Ingredient("subject", "new event added description: @DESCRIPTION , location: @LOCATION"));
 		//actionIngredients.add(new Ingredient("body", "event created by @CREATOR_MAIL . See you soon."));
@@ -74,7 +94,8 @@ public class ProvaController {
 		recipeInstance.setActionIngredients(actionIngredients);
 		
 		//recipeInstance.setTitle("se viene creato un evento al politecnico inviami un email");
-		recipeInstance.setTitle("se viene creato un evento al politecnico twittami");
+		//recipeInstance.setTitle("se viene creato un evento al politecnico twittami");
+		recipeInstance.setTitle("se piscoroma mi manda un email il cui oggetto contiene 'evento', segna un evento sul calendario");
 		
 		recipeInstance = recipeService.saveRecipeInstance(recipeInstance);
 		if(recipeInstance.isActive())

@@ -32,8 +32,8 @@ public class Weather {
 	private int sunsetMinutes;
 	private int sunriseHours;
 	private int sunriseMinutes;
-	@DBRef
-	private List<ForecastWeather> forecastList = new ArrayList<>(); ///previsioni (giorno corrente fino a un lapse di 9 giorni)
+	//@DBRef
+	//private List<ForecastWeather> forecastList = new ArrayList<>(); ///previsioni (giorno corrente fino a un lapse di 9 giorni)
 	Date downloaded; // specifica quando è stato scaricato il meteo
 
 	public Weather()
@@ -61,12 +61,12 @@ public class Weather {
 			sunriseHours+=12;
 		downloaded=new Date();
 		int lapse=0;
-		for(Forecast forecast: channel.getItem().getForecasts())
+		/*for(Forecast forecast: channel.getItem().getForecasts())
 		{
 			ForecastWeather forceastWeather = new ForecastWeather(forecast,lapse++);
 			forceastWeather.setRelatedWeather(this);
 			forecastList.add(forceastWeather);
-		}
+		}*/
 	}
 	
 	public void fillWithNewData(Channel channel) {
@@ -90,8 +90,8 @@ public class Weather {
 		if(channel.getAstronomy().getSunrise().getConvention()==TimeConvention.PM)
 			sunriseHours+=12;
 		int lapse=0;
-		for(Forecast forecast: channel.getItem().getForecasts())
-			forecastList.get(lapse++).fillWithNewData(forecast);
+		/*for(Forecast forecast: channel.getItem().getForecasts())
+			forecastList.get(lapse++).fillWithNewData(forecast);*/
 
 	}
 
@@ -175,13 +175,13 @@ public class Weather {
 		this.windDirection = windDirection;
 	}
 
-	public List<ForecastWeather> getForecastList() {
+	/*public List<ForecastWeather> getForecastList() {
 		return forecastList;
 	}
 
 	public void setForecastList(List<ForecastWeather> forecastList) {
 		this.forecastList = forecastList;
-	}
+	}*/
 
 	public Date getDownloaded() {
 		return downloaded;

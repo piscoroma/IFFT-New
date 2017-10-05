@@ -30,8 +30,12 @@ public class IngredientResolver {
 	private List<String> checkIfIngredientContainsTags(Ingredient ingredient){
 		List<String> tags = new ArrayList<String>();
 		for(String word : ingredient.getValue().split(" ")){
-			if( word.charAt(0) == '@' ) //this word is a tag;
+			if( word.charAt(0) == '@' ){ //this word is a tag;
+				char lastChar = word.charAt(word.length()-1);
+				if(lastChar==',' || lastChar=='.' || lastChar==';' || lastChar==':' || lastChar=='!' || lastChar=='?')
+					word = word.substring(0, word.length()-1);
 				tags.add(word);
+			}
 		}
 		return tags;
 	}
@@ -42,7 +46,7 @@ public class IngredientResolver {
 			if(ingr.getKey().equals(tag))
 				return "@"+ingr.getValue();
 		}
-		return "undefined";
+		return "_undefined";
 	}
 	
 	private String replaceTagInTheIngredient(Ingredient ingredient, String tag, String tagResolved){

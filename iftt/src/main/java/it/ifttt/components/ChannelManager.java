@@ -37,7 +37,7 @@ public class ChannelManager {
 			case "TWITTER":
 				genericManager = twitterManager;
 				break;
-			case "WHEATHER":
+			case "WEATHER":
 				genericManager = weatherManager;
 				break;
 			default:

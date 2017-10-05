@@ -22,7 +22,7 @@ public class GmailManager implements GenericManager {
 		TriggerEvent event = null;
 		
 		switch(triggerName){
-			case "MAIL_RECEIVED_EVENT":
+			case "EMAIL_RECEIVED":
 				event = mailReceivedEvent;
 				break;
 			default:
