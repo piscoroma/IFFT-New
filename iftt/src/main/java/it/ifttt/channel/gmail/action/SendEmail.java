@@ -99,7 +99,6 @@ public class SendEmail implements ActionPerformer {
         
         System.out.println("Performed action 'send-email' of channel Gmail.");
 		
-		
 	}
 	
 	/**

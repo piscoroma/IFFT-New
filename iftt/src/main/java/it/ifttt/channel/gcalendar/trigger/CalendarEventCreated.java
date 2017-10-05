@@ -106,15 +106,6 @@ public class CalendarEventCreated implements TriggerEvent {
 			events.add((Object)eventSatisfied);
 		return events;
 		
-		/*List<Object> events = new ArrayList<Object>();
-		Map<String, String> event = new HashMap<String, String>();
-		event.put(LOCATION_KEY, "politecnico");
-		event.put(DESCRIPTION_KEY, "festa open day");
-		event.put(CREATOR_KEY, "lambichele");
-		event.put(START_DATE_KEY, new Date().toString());
-		events.add((Object)event);
-		this.lastRefresh = new Date();
-		return events;*/
 	}
 
 	@Override

@@ -32,6 +32,8 @@ public class TweetStateAction implements ActionPerformer {
 	public static final String TEXT_KEY = "text";
 	public static final String REPLY_TO_STATUS_ID_KEY = "reply-to-status-id";
 	
+	private static final int MAX_TWEET_LENGHT = 140;
+	
 	@Autowired
 	private TwitterTemplateCreator twitterTemplateCreator;
 	
@@ -55,20 +57,26 @@ public class TweetStateAction implements ActionPerformer {
 	@Override
 	public void perform() throws UnauthorizedChannelException {
 		
-		log.debug("ACTION: i'm tweetStateAction...processing");
-		log.debug("user: " + user.toString());
-		log.debug(userIngredients.toString());
-				
+		System.out.println("Performing action 'post-tweet' of channel Twitter...");
+		
+		// get main ingredients
+		String text = userIngredients.get(TEXT_KEY);
+		String replyToStatusId = null;
+		if (userIngredients.containsKey(REPLY_TO_STATUS_ID_KEY))
+			replyToStatusId = userIngredients.get(REPLY_TO_STATUS_ID_KEY);
+		
 		// get twitter API for user
 		Twitter twitter = twitterTemplateCreator.getTwitterTemplate(user.getUsername());
 		
 		// post new tweet
-		TweetData tweet = new TweetData(userIngredients.get(TEXT_KEY));
-		if (userIngredients.containsKey(REPLY_TO_STATUS_ID_KEY))
-			tweet.inReplyToStatus(Long.parseLong(userIngredients.get(REPLY_TO_STATUS_ID_KEY)));
+		int maxLength = (text.length() < MAX_TWEET_LENGHT)? text.length() : MAX_TWEET_LENGHT;
+		TweetData tweet = new TweetData(text.substring(0, maxLength));
+		if (replyToStatusId != null)
+			tweet.inReplyToStatus(Long.parseLong(replyToStatusId));
 		twitter.timelineOperations().updateStatus(tweet);
 		
-		log.debug("ACTION: i'm tweetStateAction...done!");
+		System.out.println("Performed action 'post-tweet' of channel Twitter.");
+
 	}
 
 }

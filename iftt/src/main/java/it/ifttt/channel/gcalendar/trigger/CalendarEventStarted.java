@@ -104,14 +104,7 @@ public class CalendarEventStarted implements TriggerEvent {
 		for(Event eventSatisfied : eventSatisfiedList )
 			events.add((Object)eventSatisfied);
 		return events;
-				
-		/*List<Object> events = new ArrayList<Object>();
-		log.debug("TRIGGER: i'm CalendarEventStarted");
-		log.debug("user: " + user.toString());
-		log.debug(lastRefresh.toString());
-		log.debug(userIngredients.toString());
-		this.lastRefresh = new Date();
-		return null;*/
+		
 	}
 
 	@Override
