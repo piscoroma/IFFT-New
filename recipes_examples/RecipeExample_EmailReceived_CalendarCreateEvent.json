@@ -1,0 +1,35 @@
+{
+	"username": "giuseppe",
+	"title": "if receive an email, add event on calendar",
+	"isPublic": true,
+	"isActive": true,
+	"trigger_name": "EMAIL_RECEIVED",
+	"trigger_ingredients": [
+		{
+			"name": "subject",
+			"value": "colloquio"
+		},
+		{
+			"name": "from",
+			"value": "piscoroma@gmail.com"
+		}
+	],
+	"action_name": "CALENDAR_CREATE_EVENT",
+	"action_ingredients": [{
+			"name": "summary",
+			"value": "@SUBJECT from @SENDER"
+		},
+		{
+			"name": "description",
+			"value": "il body dell'email è: @BODY"
+		},
+		{
+			"name": "location",
+			"value": "da definire"
+		},
+    {
+			"name": "all-day",
+			"value": "true"
+		}
+	]
+}

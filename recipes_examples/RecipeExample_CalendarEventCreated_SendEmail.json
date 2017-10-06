@@ -1,0 +1,38 @@
+{
+	"username": "giuseppe",
+	"title": "if a new event is created, send me a mail",
+	"isPublic": true,
+	"isActive": true,
+	"trigger_name": "CALENDAR_EVENT_CREATED",
+	"trigger_ingredients": [{
+			"name": "summary",
+			"value": "open-day"
+		},
+		{
+			"name": "description",
+			"value": "open day, tutti invitati"
+		},
+		{
+			"name": "location",
+			"value": "politecnico"
+		},
+		{
+			"name": "creator",
+			"value": "piscoroma@gmail.com"
+		}
+	],
+	"action_name": "SEND_EMAIL",
+	"action_ingredients": [{
+			"name": "to",
+			"value": "piscoroma@gmail.com"
+		},
+		{
+			"name": "subject",
+			"value": "new event added description: @DESCRIPTION , location: @LOCATION"
+		},
+		{
+			"name": "body",
+			"value": "event created by @CREATOR_MAIL . See you there."
+		}
+	]
+}

@@ -1,0 +1,26 @@
+{
+	"username": "giuseppe",
+	"title": "if someone tweet a particular word send me an email",
+	"isPublic": true,
+	"isActive": true,
+	"trigger_name": "NEW_TWEET_EVENT",
+	"trigger_ingredients": [{
+			"name": "text",
+			"value": "calcio"
+		}
+	],
+	"action_name": "SEND_EMAIL",
+	"action_ingredients": [{
+			"name": "to",
+			"value": "piscoroma@gmail.com"
+		},
+		{
+			"name": "subject",
+			"value": "someone tweet about my word"
+		},
+		{
+			"name": "body",
+			"value": "tweet: @TEXT by @FROM"
+		}
+	]
+}

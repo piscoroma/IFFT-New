@@ -1,0 +1,38 @@
+{
+	"username": "giuseppe",
+	"title": "if current weather is verified send me an email",
+	"isPublic": true,
+	"isActive": true,
+	"trigger_name": "CURRENT_WEATHER_TRIGGER",
+	"trigger_ingredients": [{
+			"name": "location",
+			"value": "novara"
+		},
+		{
+			"name": "condition",
+			"value": "Sunny"
+		},
+		{
+			"name": "temperature-high",
+			"value": "10"
+		},
+    {
+			"name": "temperature-low",
+			"value": "30"
+		}
+	],
+	"action_name": "SEND_EMAIL",
+	"action_ingredients": [{
+			"name": "to",
+			"value": "piscoroma@gmail.com"
+		},
+		{
+			"name": "subject",
+			"value": "current weather in @LOCATION"
+		},
+		{
+			"name": "body",
+			"value": "the weather in @LOCATION is satisfied, condition is: @CONDITION, temperature is: @TEMPERATURE °C"
+		}
+	]
+}

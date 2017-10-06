@@ -1,0 +1,30 @@
+{
+	"username": "giuseppe",
+	"title": "if a new event is created, tweet me",
+	"isPublic": true,
+	"isActive": true,
+	"trigger_name": "CALENDAR_EVENT_CREATED",
+	"trigger_ingredients": [{
+			"name": "summary",
+			"value": "cena tra colleghi"
+		},
+		{
+			"name": "description",
+			"value": "tutti a mangiare la pizza"
+		},
+		{
+			"name": "location",
+			"value": "pizzeria 4 soldi"
+		},
+		{
+			"name": "creator",
+			"value": "piscoroma@gmail.com"
+		}
+	],
+	"action_name": "TWEET_STATE_ACTION",
+	"action_ingredients": [{
+			"name": "text",
+			"value": "event: @SUMMARY created at @LOCATION by @CREATOR_NAME"
+		}
+	]
+}
