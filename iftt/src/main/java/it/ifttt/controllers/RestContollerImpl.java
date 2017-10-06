@@ -134,34 +134,68 @@ public class RestContollerImpl implements it.ifttt.controllers.RestController {
 		System.out.println("AAA" + json_recipeClient.toString());
 		RecipeClient recipeClient = gson.fromJson(json_recipeClient, RecipeClient.class);
 		System.out.println("BBB" + recipeClient.toString());
-		RecipeStruct recipeStruct = recipeService.getRecipeStruct(recipeClient.getTrId(), recipeClient.getAcId());
 		try{
+			Trigger trigger = channelService.getTriggerByName(recipeClient.getTrigger_name());
+			Action action = channelService.getActionByName(recipeClient.getAction_name());
+			RecipeStruct recipeStruct = recipeService.getRecipeStruct(trigger.getId(), action.getId());
 			if(recipeStruct==null){
 				User author = userService.getUserByUsername(recipeClient.getUsername());
-				Trigger trigger = channelService.getTriggerById(recipeClient.getTrId());
-				Action action = channelService.getActionById(recipeClient.getAcId());
+				//Trigger trigger = channelService.getTriggerById(recipeClient.getTrId());
+				//Action action = channelService.getActionById(recipeClient.getAcId());
 				String description = recipeClient.getDescription();
-				boolean isPublic = false;
+				boolean isPublic = recipeClient.getIsPublic();
 				recipeStruct = new RecipeStruct(author, description, isPublic, trigger, action);
 				recipeService.saveRecipeStruct(recipeStruct);
 			}
 			User user = userService.getUserByUsername(recipeClient.getUsername());
 			boolean isActive = recipeClient.getIsActive();
 			String title = recipeClient.getTitle();
-			List<Ingredient> triggerIngredients = recipeClient.getIngrTr();
-			List<Ingredient> actionIngredients = recipeClient.getIngrAc();
+			List<Ingredient> triggerIngredients = recipeClient.getTrigger_ingredients();
+			List<Ingredient> actionIngredients = recipeClient.getAction_ingredients();
 			RecipeInstance recipeInstance = new RecipeInstance(user, isActive, title, recipeStruct, triggerIngredients, actionIngredients);
 			recipeService.saveRecipeInstance(recipeInstance);
-			System.out.println("Ricetta salvata:");
-			System.out.println("RecipeStruct: " + recipeStruct);
-			System.out.println("RecipeInstance: " + recipeInstance);
+			if(recipeInstance.isActive())
+				recipeService.activeRecipeInstance(recipeInstance.getId());
+			System.out.println("Ricetta salvata: " + recipeClient.toString());
+			//System.out.println("RecipeStruct: " + recipeStruct);
+			//System.out.println("RecipeInstance: " + recipeInstance);
 		}catch(Exception e){
 			throw new InternalServerErrorException();
 		}
 	}
 	
 	@Override
-	@RequestMapping(value="/recipesStruct/public", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
+	@RequestMapping(value="/recipes/{id}", method=RequestMethod.DELETE)
+	@ResponseStatus(value=HttpStatus.OK)
+	public void deleteRecipeInstance(@PathVariable ObjectId id){
+		try{
+			recipeService.deleteRecipeInstance(id);
+		}catch(IllegalArgumentException e){
+			throw new NotFoundException();
+		}catch(DatabaseException e){
+			throw new InternalServerErrorException();
+		}
+		
+	}
+	
+	@Override
+	@RequestMapping(value="/recipes/{username}", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
+	@ResponseStatus(value=HttpStatus.OK)
+	public String getRecipesInstanceByUsername(@PathVariable String username) {
+		List<RecipeInstance> recipesInstanceList;
+		try{
+			User user = userService.getUserByUsername(username);
+			recipesInstanceList = recipeService.getAllRecipesInstanceByUser(user);
+		}catch(IllegalArgumentException e){
+			throw new NotFoundException();
+		}catch(DatabaseException e){
+			throw new InternalServerErrorException();
+		}
+		return gson.toJson(recipesInstanceList);
+	}
+	
+	@Override
+	@RequestMapping(value="/recipes/public", method=RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
 	@ResponseStatus(value=HttpStatus.OK)
 	public String getAllPublicRecipesStruct() {
 		List<RecipeStruct> publicRecipeStructList = recipeService.getAllPublicRecipesStruct();

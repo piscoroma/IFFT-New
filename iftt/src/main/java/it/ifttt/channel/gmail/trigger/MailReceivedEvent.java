@@ -27,6 +27,7 @@ import org.springframework.social.twitter.api.Tweet;
 import org.springframework.stereotype.Component;
 
 import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
+import com.google.api.client.util.DateTime;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
@@ -238,8 +239,10 @@ public class MailReceivedEvent implements TriggerEvent {
 		String query = "";
 		if(userIngredients.containsKey(FROM_KEY))
 			query += "from:" + userIngredients.get(FROM_KEY);
-		if(getLastRefresh()==null)
-			this.lastRefresh = new Date();
+		if(getLastRefresh()==null){
+			Date d = new Date();
+			this.lastRefresh = new Date(d.getTime() - 1 * 24 * 3600 * 1000 ); //Subtract 1 days   
+		}
 		query += " after:" + dateFormat.format(getLastRefresh());
 		System.out.println("Query: " + query);
 		return query;

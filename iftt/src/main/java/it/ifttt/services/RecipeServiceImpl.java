@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import it.ifttt.domain.Action;
 import it.ifttt.domain.RecipeInstance;
 import it.ifttt.domain.RecipeStruct;
+import it.ifttt.domain.User;
 import it.ifttt.exceptions.DatabaseException;
 import it.ifttt.repository.RecipeInstanceRepository;
 import it.ifttt.repository.RecipeStructRepository;
@@ -160,8 +161,21 @@ public class RecipeServiceImpl implements RecipeService {
 	}
 	
 	@Override
-	public List<RecipeInstance> getAllRecipesInstance(){
-		return recipeInstanceRepo.findAll();
+	public List<RecipeInstance> getAllRecipesInstance() throws DatabaseException{
+		try{
+			return recipeInstanceRepo.findAll();
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}
+	}
+	
+	@Override
+	public List<RecipeInstance> getAllRecipesInstanceByUser(User user) throws DatabaseException {
+		try{
+			return recipeInstanceRepo.findByUser(user);
+		}catch(Exception e){
+			throw new DatabaseException(e);
+		}
 	}
 	
 	@Override
@@ -178,7 +192,7 @@ public class RecipeServiceImpl implements RecipeService {
 				throw new IllegalArgumentException("RecipeInstance not found");
 			recipeInstance.setActive(true);
 			recipeInstanceRepo.save(recipeInstance);
-		}catch(Exception e){
+		}catch(DatabaseException e){
 			throw new DatabaseException(e);
 		}
 		recipeActiveInstanceMap.put(id, recipeInstance);		
@@ -193,7 +207,7 @@ public class RecipeServiceImpl implements RecipeService {
 				throw new IllegalArgumentException("RecipeInstance not found");
 			recipeInstance.setActive(false);
 			recipeInstanceRepo.save(recipeInstance);
-		}catch(Exception e){
+		}catch(DatabaseException e){
 			throw new DatabaseException(e);
 		}
 		recipeActiveInstanceMap.remove(id);
@@ -208,7 +222,7 @@ public class RecipeServiceImpl implements RecipeService {
 				throw new IllegalArgumentException("RecipeInstance not found");
 			recipeInstance.setLastRefresh(new Date());
 			recipeInstanceRepo.save(recipeInstance);
-		}catch(Exception e){
+		}catch(DatabaseException e){
 			throw new DatabaseException(e);
 		}
 		recipeActiveInstanceMap.put(id, recipeInstance);
@@ -223,7 +237,7 @@ public class RecipeServiceImpl implements RecipeService {
 				throw new IllegalArgumentException("RecipeInstance not found");
 			recipeInstance.setLastRefresh(lastRefresh);
 			recipeInstanceRepo.save(recipeInstance);
-		}catch(Exception e){
+		}catch(DatabaseException e){
 			throw new DatabaseException(e);
 		}
 		recipeActiveInstanceMap.put(id, recipeInstance);
@@ -248,7 +262,7 @@ public class RecipeServiceImpl implements RecipeService {
 			if(recipeInstance == null)
 				throw new IllegalArgumentException("RecipeInstance not found");
 			recipeInstanceRepo.delete(recipeInstance);
-		}catch(Exception e){
+		}catch(DatabaseException e){
 			throw new DatabaseException(e);
 		}
 		if(recipeActiveInstanceMap.containsKey(id))

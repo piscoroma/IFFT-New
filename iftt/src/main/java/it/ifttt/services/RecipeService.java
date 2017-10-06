@@ -9,6 +9,7 @@ import it.ifttt.domain.Action;
 import it.ifttt.domain.RecipeInstance;
 import it.ifttt.domain.RecipeStruct;
 import it.ifttt.domain.Trigger;
+import it.ifttt.domain.User;
 import it.ifttt.exceptions.DatabaseException;
 
 public interface RecipeService {
@@ -22,7 +23,8 @@ public interface RecipeService {
 	
 	RecipeInstance saveRecipeInstance(RecipeInstance recipeInstance) throws DatabaseException;
 	void updateRecipeInstance(RecipeInstance recipeInstance) throws DatabaseException, IllegalArgumentException;
-	List<RecipeInstance> getAllRecipesInstance();
+	List<RecipeInstance> getAllRecipesInstance() throws DatabaseException;
+	List<RecipeInstance> getAllRecipesInstanceByUser(User user) throws DatabaseException;
 	List<RecipeInstance> getAllActiveRecipesInstance();
 	void activeRecipeInstance(ObjectId id) throws DatabaseException, IllegalArgumentException;
 	void disableRecipeInstance(ObjectId id) throws DatabaseException, IllegalArgumentException;

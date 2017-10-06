@@ -15,14 +15,15 @@
 <!-- GOOGLE -->
 
 <form action="connect/google" method="POST">
-    <p>You haven't created any connections with Twitter yet. Click the button to create
-       a connection between your account and your Twitter profile.
-       (You'll be redirected to Twitter where you'll be asked to authorize the connection.)</p>
+    <p>You haven't created any connections with Google yet. Click the button to create
+       a connection between your account and your Google profile.
+       (You'll be redirected to Google where you'll be asked to authorize the connection.)</p>
     <input type="hidden" name="scope" value="https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar https://mail.google.com/" />
     <p><button type="submit">Connect Google</button></p>
 </form>
 
 
+<!-- 
 <form action="connect/google" method="post">
   <div class="formInfo">
     <p>
@@ -33,7 +34,8 @@
    <input type="hidden" name="scope" value="https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/calendar https://mail.google.com/" />
   <button type="submit">Disconnect Google</button>
   <input type="hidden" name="_method" value="delete" />
-</form>
+</form>  
+-->
 
 <!-- TWITTER -->
 
@@ -45,6 +47,7 @@
 </form>
 
 
+<!-- 
 <form action="connect/twitter" method="post">
   <div class="formInfo">
     <p>
@@ -55,6 +58,8 @@
   <button type="submit">Disconnect Twitter</button>
   <input type="hidden" name="_method" value="delete" />
 </form>
+ -->
+
 
 
 </body>

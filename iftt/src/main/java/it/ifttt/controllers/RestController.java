@@ -33,11 +33,10 @@ public interface RestController {
 	//RecipeInstance postRecipeInstance(RecipeInstance recipeInstance);
 	//List<RecipeInstance> getAllRecipesInstanceByUser(String username);
 	void updateRecipeInstance(String recipeInstance);
-	/*RecipeInstance getRecipeInstanceById(ObjectId id);
+	String getRecipesInstanceByUsername(String username);
+	//RecipeInstance getRecipeInstanceById(ObjectId id);
 	void deleteRecipeInstance(ObjectId id);
-	void activeRecipeInstance(ObjectId id);
+	/*void activeRecipeInstance(ObjectId id);
 	void disableRecipeInstance(ObjectId id);*/
-
-	
 	
 }

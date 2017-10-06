@@ -333,10 +333,10 @@ public class DatabaseFillerOnStartup implements ApplicationListener<ContextRefre
 		
 		recipeStruct = new RecipeStruct();
 		recipeStruct.setAuthor(user);
-		recipeStruct.setDescription("if receive a tweet, send a mail");
+		recipeStruct.setDescription("if the weather condition is satisfied, add an event on the calendar");
 		recipeStruct.setPublic(false);
-		recipeStruct.setTrigger(channelService.getTriggerByName("NEW_TWEET_EVENT"));
-		recipeStruct.setAction(channelService.getActionByName("SEND_EMAIL"));
+		recipeStruct.setTrigger(channelService.getTriggerByName("CURRENT_WEATHER_TRIGGER"));
+		recipeStruct.setAction(channelService.getActionByName("CALENDAR_CREATE_EVENT"));
 		
 		recipeService.saveRecipeStruct(recipeStruct);
 		log.debug("Adding recipeStruct...added with id " + recipeStruct.getId());

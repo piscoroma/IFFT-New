@@ -24,7 +24,7 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 	/*
 	 * Trigger: current-weather
 	 * 
-	 * Questo trigger va usato per monitorare le condizioni meteo in tempo reale, e non per le previsioni.
+	 * Questo trigger va usato per monitorare le condizioni meteo in tempo reale.
 	 * Se si verifica una delle condizioni specificate come ingredienti, si scatena.
 	 * 
 	 * Ingredienti supportati:
@@ -123,11 +123,11 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		List<Object> events = new ArrayList<Object>();
 		Weather weather;
 		
-		// se il trigger è stato scatenato nell'ultimo minuto, non lo controllo più.
+		// se il trigger è stato scatenato nell'ultimo giorno, non lo controllo più.
 		if(lastRefresh!=null){
 			Date now = new Date();
-			long minutes = ChronoUnit.MINUTES.between(lastRefresh.toInstant(), now.toInstant());
-			if(minutes <= 1)
+			long hours = ChronoUnit.HOURS.between(lastRefresh.toInstant(), now.toInstant());
+			if(hours <= 24)
 				return events;
 		}
 		log.debug("-->richiesta a weather");
@@ -200,7 +200,9 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		// [temperature]
 		if (userIngredients.containsKey(TEMPERATURE_HIGH_KEY) || userIngredients.containsKey(TEMPERATURE_LOW_KEY)) {
 			if (!userIngredients.containsKey(TEMPERATURE_HIGH_KEY))
+				userIngredients.put(TEMPERATURE_HIGH_KEY, String.valueOf(Integer.MAX_VALUE));
 			if (!userIngredients.containsKey(TEMPERATURE_LOW_KEY))
+				userIngredients.put(TEMPERATURE_LOW_KEY, String.valueOf(Integer.MIN_VALUE));
 			if (weather.getTemperature() > Integer.parseInt(userIngredients.get(TEMPERATURE_LOW_KEY)) 
 					&& weather.getTemperature() < Integer.parseInt(userIngredients.get(TEMPERATURE_HIGH_KEY)))
 				return false;
@@ -208,7 +210,9 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		// [humidity]
 		if (userIngredients.containsKey(HUMIDITY_HIGH_KEY) || userIngredients.containsKey(HUMIDITY_LOW_KEY)) {
 			if (!userIngredients.containsKey(HUMIDITY_HIGH_KEY))
+				userIngredients.put(HUMIDITY_HIGH_KEY, "100");
 			if (!userIngredients.containsKey(HUMIDITY_LOW_KEY))
+				userIngredients.put(HUMIDITY_LOW_KEY, "0");
 			if (weather.getHumidity() > Integer.parseInt(userIngredients.get(HUMIDITY_LOW_KEY)) 
 					&& weather.getHumidity() < Integer.parseInt(userIngredients.get(HUMIDITY_HIGH_KEY)))
 				return false;
@@ -216,7 +220,9 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		// [pressure]
 		if (userIngredients.containsKey(PRESSURE_HIGH_KEY) || userIngredients.containsKey(PRESSURE_LOW_KEY)) {
 			if (!userIngredients.containsKey(PRESSURE_HIGH_KEY))
+				userIngredients.put(PRESSURE_HIGH_KEY, String.valueOf(Float.MAX_VALUE));
 			if (!userIngredients.containsKey(PRESSURE_LOW_KEY))
+				userIngredients.put(PRESSURE_LOW_KEY, String.valueOf(Float.MIN_VALUE));
 			if (weather.getPressure() > Float.parseFloat(userIngredients.get(PRESSURE_LOW_KEY)) 
 					&& weather.getPressure() < Float.parseFloat(userIngredients.get(PRESSURE_HIGH_KEY)))
 				return false;
@@ -224,7 +230,9 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		// [visibility]
 		if (userIngredients.containsKey(VISIBILITY_HIGH_KEY) || userIngredients.containsKey(VISIBILITY_LOW_KEY)) {
 			if (!userIngredients.containsKey(VISIBILITY_HIGH_KEY))
+				userIngredients.put(VISIBILITY_HIGH_KEY, String.valueOf(Float.MAX_VALUE));
 			if (!userIngredients.containsKey(VISIBILITY_LOW_KEY))
+				userIngredients.put(VISIBILITY_LOW_KEY, String.valueOf(Float.MIN_VALUE));
 			if (weather.getVisibility() > Float.parseFloat(userIngredients.get(VISIBILITY_LOW_KEY)) 
 					&& weather.getVisibility() < Float.parseFloat(userIngredients.get(VISIBILITY_HIGH_KEY)))
 				return false;
@@ -232,7 +240,9 @@ public class CurrentWeatherTrigger implements TriggerEvent {
 		// [wind speed]
 		if (userIngredients.containsKey(WIND_SPEED_HIGH_KEY) || userIngredients.containsKey(WIND_SPEED_LOW_KEY)) {
 			if (!userIngredients.containsKey(WIND_SPEED_HIGH_KEY))
+				userIngredients.put(WIND_SPEED_HIGH_KEY, String.valueOf(Float.MAX_VALUE));
 			if (!userIngredients.containsKey(WIND_SPEED_LOW_KEY))
+				userIngredients.put(WIND_SPEED_LOW_KEY, String.valueOf(Float.MAX_VALUE));
 			if (weather.getWindSpeed() > Float.parseFloat(userIngredients.get(WIND_SPEED_LOW_KEY)) 
 					&& weather.getWindSpeed() < Float.parseFloat(userIngredients.get(WIND_SPEED_HIGH_KEY)))
 				return false;
